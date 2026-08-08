@@ -1,0 +1,591 @@
+{
+  "fixture": "missing-calendar",
+  "description": "A file with no CALENDAR table",
+  "landmine": "Without a calendar there is no shift pattern, so working-day conversion has no basis, and duration_working_days must report unavailable rather than assume an eight-hour five-day week. day_hr_cnt was never the fallback either: Oracle documents it as a units-CONVERSION factor that is never validated against the shifts and defaults to 8 on every new calendar including 24-hour ones (xer-format.md gotcha 18, 038, 048) — and there is no CALENDAR row here to read it off in any case. This is now the only PROGRAMME in the corpus reporting unavailable for the no-table reason: since 047 the other 26 report a value, so this file and enc-zeroed-file are what stop the conversion inventing one. Note calendars_in_use is 2 against a calendar_count of 0 — the TASK rows still name the calendars the file no longer carries, which is the shape a table-level deletion leaves and is why the count is taken off TASK.clndr_id.",
+  "speculative": false,
+  "p6_version": "8.3",
+  "generator": {
+    "seed": 3429628207,
+    "options": {
+      "activities": 20,
+      "wbsNodes": 6,
+      "wbsDepth": 3,
+      "codesPerActivity": 3,
+      "rsrcPerActivity": 0.5,
+      "udfPerActivity": 2,
+      "resources": 4,
+      "calendars": 2,
+      "version": "8.3"
+    }
+  },
+  "file": {
+    "bytes": 32218,
+    "sha256": "f5bc8d8ce97de04547863d94e74ec83a460bbcd84e681b0e2df3b954dedc43be"
+  },
+  "tables": [
+    {
+      "name": "CURRTYPE",
+      "rows": 1
+    },
+    {
+      "name": "OBS",
+      "rows": 1
+    },
+    {
+      "name": "POBS",
+      "rows": 2
+    },
+    {
+      "name": "UDFTYPE",
+      "rows": 5
+    },
+    {
+      "name": "UMEASURE",
+      "rows": 2
+    },
+    {
+      "name": "PROJECT",
+      "rows": 1
+    },
+    {
+      "name": "SCHEDOPTIONS",
+      "rows": 1
+    },
+    {
+      "name": "PROJWBS",
+      "rows": 6
+    },
+    {
+      "name": "RSRC",
+      "rows": 4
+    },
+    {
+      "name": "ACTVTYPE",
+      "rows": 12
+    },
+    {
+      "name": "RSRCRATE",
+      "rows": 4
+    },
+    {
+      "name": "TASK",
+      "rows": 20
+    },
+    {
+      "name": "ACTVCODE",
+      "rows": 59
+    },
+    {
+      "name": "TASKPRED",
+      "rows": 34
+    },
+    {
+      "name": "TASKRSRC",
+      "rows": 28
+    },
+    {
+      "name": "TASKACTV",
+      "rows": 60
+    },
+    {
+      "name": "UDFVALUE",
+      "rows": 40
+    }
+  ],
+  "calendars": [],
+  "assertions": {
+    "data_date": "2026-01-05 08:00",
+    "project_row_count": 1,
+    "distinct_task_proj_id": 1,
+    "activity_count": 20,
+    "status_mix": {
+      "TK_NotStart": 20
+    },
+    "activity_type_mix": {
+      "TT_Task": 20
+    },
+    "relationship_type_mix": {
+      "PR_FS": 32,
+      "PR_FF": 1,
+      "PR_SS": 1
+    },
+    "constraint_mix": {
+      "(empty)": 19,
+      "CS_MSO": 1
+    },
+    "float_hr": {
+      "negative": 0,
+      "zero": 7,
+      "null": 0
+    },
+    "wbs": {
+      "node_count": 6,
+      "max_depth": 3
+    },
+    "calendar_count": 0,
+    "calendars_in_use": 2,
+    "duration_working_days": {
+      "state": "unavailable",
+      "reason": "no CALENDAR table, so there is no shift pattern to convert on"
+    },
+    "resource_count": 4,
+    "resource_assignment_count": 28,
+    "activity_code_assignment_count": 60,
+    "external_relationship_count": 0,
+    "driving_path_flag_count": 7
+  },
+  "driving_path": {
+    "definition": "remaining work as of the data date, walked back from the latest remaining finish; driving predecessors are those that set the successor's constraining date, ties all kept (014 decisions 3 and 4, as amended by 028)",
+    "computed_from": "the generator's own logic network, not total float",
+    "longest_path_run": true,
+    "state": "ok",
+    "seeds": [
+      "A001190"
+    ],
+    "member_count": 7,
+    "members": [
+      "A001000",
+      "A001010",
+      "A001050",
+      "A001070",
+      "A001110",
+      "A001150",
+      "A001190"
+    ],
+    "branch_count": 0,
+    "branches": [],
+    "truncated": false,
+    "cycle_count": 0,
+    "cycles": [],
+    "path_continuous": true,
+    "open_chain_tails": [
+      "A001000"
+    ],
+    "flagged": [
+      "A001000",
+      "A001010",
+      "A001050",
+      "A001070",
+      "A001110",
+      "A001150",
+      "A001190"
+    ],
+    "external_predecessors": [],
+    "float_based_tracer": {
+      "note": "total_float_hr_cnt <= 0 is not the Longest Path (xer-format.md, 014 decision 4)",
+      "count": 7,
+      "marks_in_error": [],
+      "misses": []
+    },
+    "as_read_from_the_file": {
+      "note": "per relationship type on the emitted timestamps — FS pred.early_end_date + lag vs succ.early_start_date, SS pred.early_start_date + lag vs succ.early_start_date, FF pred.early_end_date + lag vs succ.early_end_date, SF pred.early_start_date + lag vs succ.early_end_date; argmax of demand - reference, ties all kept, plus the same-kind zero-lag floor (014 decision 4 as amended by 028). Lag is elapsed hours; relationships absent from the file are absent from the walk; predecessors outside the file are unresolvable and make the chain truncated",
+      "differs": false,
+      "state": "ok",
+      "seeds": [
+        "A001190"
+      ],
+      "member_count": 7,
+      "members": [
+        "A001000",
+        "A001010",
+        "A001050",
+        "A001070",
+        "A001110",
+        "A001150",
+        "A001190"
+      ],
+      "branch_count": 0,
+      "branches": [],
+      "truncated": false,
+      "cycle_count": 0,
+      "cycles": [],
+      "path_continuous": true,
+      "open_chain_tails": [
+        "A001000"
+      ],
+      "marks_in_error": [],
+      "misses": [],
+      "why": [],
+      "seed_agreement": {
+        "note": "the truth seeds on the latest remaining finish measured in working hours; this walk seeds on the latest finish instant among the emitted timestamps. Every row writes its finish at the end of the working hour it occupies, zero-duration or not (049), so the two orderings coincide and these sets agree — including where the seed set TIES between a finish milestone and the task it finishes with, which is the shape 044 measured on 47 of 47 real ties",
+        "agree": true,
+        "truth": [
+          "A001190"
+        ],
+        "as_read": [
+          "A001190"
+        ],
+        "only_in_truth": [],
+        "only_in_read": []
+      },
+      "recall_pct": 100,
+      "precision_pct": 100
+    }
+  },
+  "ingest": {
+    "accept": true,
+    "reason": "no ingest rule under test"
+  },
+  "tasks": [
+    {
+      "task_code": "A001000",
+      "task_name": "Cast Rebar Cage - PRJ.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 120,
+      "remain_drtn_hr_cnt": 120,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-01-05 08:00",
+      "early_end_date": "2026-01-23 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001010",
+      "task_name": "Fabricate Switchgear - PRJ.3",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 24,
+      "remain_drtn_hr_cnt": 24,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-01-26 08:00",
+      "early_end_date": "2026-01-28 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001020",
+      "task_name": "Erect Formwork - PRJ.1.1",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 40,
+      "remain_drtn_hr_cnt": 40,
+      "total_float_hr_cnt": 40,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-01-26 08:00",
+      "early_end_date": "2026-01-30 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001030",
+      "task_name": "Install Access Road - PRJ.1.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 16,
+      "remain_drtn_hr_cnt": 16,
+      "total_float_hr_cnt": 40,
+      "free_float_hr_cnt": 8,
+      "early_start_date": "2026-02-02 08:00",
+      "early_end_date": "2026-02-03 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001040",
+      "task_name": "Commission Base Slab - PRJ.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 40,
+      "remain_drtn_hr_cnt": 40,
+      "total_float_hr_cnt": 112,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-01-29 08:00",
+      "early_end_date": "2026-02-04 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001050",
+      "task_name": "Approve Base Slab - PRJ.3",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 40,
+      "remain_drtn_hr_cnt": 40,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-01-29 08:00",
+      "early_end_date": "2026-02-04 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001060",
+      "task_name": "Divert Pile Cap - PRJ.1.1",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 16,
+      "remain_drtn_hr_cnt": 16,
+      "total_float_hr_cnt": 40,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-02-02 08:00",
+      "early_end_date": "2026-02-03 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001070",
+      "task_name": "Approve Fire Main - PRJ.1.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 80,
+      "remain_drtn_hr_cnt": 80,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-02-11 08:00",
+      "early_end_date": "2026-02-24 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001080",
+      "task_name": "Survey Retaining Wall - PRJ.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 8,
+      "remain_drtn_hr_cnt": 8,
+      "total_float_hr_cnt": 1136,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-02-05 08:00",
+      "early_end_date": "2026-02-05 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001090",
+      "task_name": "Demolish Rebar Cage - PRJ.3",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 8,
+      "remain_drtn_hr_cnt": 8,
+      "total_float_hr_cnt": 72,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-02-11 08:00",
+      "early_end_date": "2026-02-11 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001100",
+      "task_name": "Divert Access Road - PRJ.1.1",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 24,
+      "remain_drtn_hr_cnt": 24,
+      "total_float_hr_cnt": 648,
+      "free_float_hr_cnt": 328,
+      "early_start_date": "2026-02-05 08:00",
+      "early_end_date": "2026-02-09 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": "CS_MSO",
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001110",
+      "task_name": "Excavate Base Slab - PRJ.1.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 240,
+      "remain_drtn_hr_cnt": 240,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-02-25 08:00",
+      "early_end_date": "2026-04-07 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001120",
+      "task_name": "Commission Rebar Cage - PRJ.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 8,
+      "remain_drtn_hr_cnt": 8,
+      "total_float_hr_cnt": 1136,
+      "free_float_hr_cnt": 1136,
+      "early_start_date": "2026-02-06 08:00",
+      "early_end_date": "2026-02-06 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001130",
+      "task_name": "Demolish Track Slab - PRJ.3",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 24,
+      "remain_drtn_hr_cnt": 24,
+      "total_float_hr_cnt": 936,
+      "free_float_hr_cnt": 256,
+      "early_start_date": "2026-02-18 08:00",
+      "early_end_date": "2026-02-20 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001140",
+      "task_name": "Install Hoarding - PRJ.1.1",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 480,
+      "remain_drtn_hr_cnt": 480,
+      "total_float_hr_cnt": 320,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-04-08 08:00",
+      "early_end_date": "2026-06-30 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001150",
+      "task_name": "Backfill Hoarding - PRJ.1.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 720,
+      "remain_drtn_hr_cnt": 720,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-04-08 08:00",
+      "early_end_date": "2026-08-11 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001160",
+      "task_name": "Divert Drainage - PRJ.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 24,
+      "remain_drtn_hr_cnt": 24,
+      "total_float_hr_cnt": 1136,
+      "free_float_hr_cnt": 1136,
+      "early_start_date": "2026-02-04 08:00",
+      "early_end_date": "2026-02-06 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001170",
+      "task_name": "Inspect Roof Slab - PRJ.3",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 120,
+      "remain_drtn_hr_cnt": 120,
+      "total_float_hr_cnt": 680,
+      "free_float_hr_cnt": 680,
+      "early_start_date": "2026-04-08 08:00",
+      "early_end_date": "2026-04-28 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001180",
+      "task_name": "Backfill Drainage - PRJ.1.1",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 8,
+      "remain_drtn_hr_cnt": 8,
+      "total_float_hr_cnt": 320,
+      "free_float_hr_cnt": 320,
+      "early_start_date": "2026-06-30 08:00",
+      "early_end_date": "2026-06-30 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": null,
+      "float_path": null,
+      "float_path_order": null
+    },
+    {
+      "task_code": "A001190",
+      "task_name": "Commission Base Slab - PRJ.1.2",
+      "task_type": "TT_Task",
+      "status_code": "TK_NotStart",
+      "target_drtn_hr_cnt": 80,
+      "remain_drtn_hr_cnt": 80,
+      "total_float_hr_cnt": 0,
+      "free_float_hr_cnt": 0,
+      "early_start_date": "2026-08-12 08:00",
+      "early_end_date": "2026-08-25 16:00",
+      "act_start_date": null,
+      "act_end_date": null,
+      "cstr_type": null,
+      "driving_path_flag": "Y",
+      "float_path": null,
+      "float_path_order": null
+    }
+  ]
+}

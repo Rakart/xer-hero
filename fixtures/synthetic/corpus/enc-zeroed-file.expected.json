@@ -1,0 +1,71 @@
+{
+  "fixture": "enc-zeroed-file",
+  "description": "397,781 bytes of pure NUL, with a .xer extension and an ordinary size",
+  "landmine": "MUST REJECT AS UNREADABLE. One real file in 139 is exactly this — a .xer in a tender folder, 100% zero bytes, plausible sync corruption, a wholly ordinary size that sails past any size check. MPXJ reads it as null with no exception and no message, and a scan that counts what it recognises counts zero of everything without anything going wrong. Every count in this golden is therefore a zero — which is precisely why no count can be the discriminator: a scan result of all zeros is indistinguishable from a very small programme. The guard is readability, and this file fails both halves of it: no %E as the last record, and 397,781 NUL bytes in a format that is CP1252 text throughout. It is also the file that shows why \"no ERMHDR on line 1\" is the wrong VERDICT even where it is the right answer — the planner is not holding the wrong kind of file, they are holding a broken copy of the right one, and the useful thing to tell them is to fetch it again.",
+  "speculative": false,
+  "p6_version": null,
+  "generator": {
+    "seed": 2268687274,
+    "options": {
+      "noProgramme": true
+    }
+  },
+  "file": {
+    "bytes": 397781,
+    "sha256": "f7bb10ecb7bb1d92f169bb92557458d82d23a365b4f811c196774ff3db7be97d"
+  },
+  "tables": [],
+  "calendars": [],
+  "assertions": {
+    "data_date": null,
+    "project_row_count": 0,
+    "distinct_task_proj_id": 0,
+    "activity_count": 0,
+    "status_mix": {},
+    "activity_type_mix": {},
+    "relationship_type_mix": {},
+    "constraint_mix": {},
+    "float_hr": {
+      "negative": 0,
+      "zero": 0,
+      "null": 0
+    },
+    "wbs": {
+      "node_count": 0,
+      "max_depth": 0
+    },
+    "calendar_count": 0,
+    "calendars_in_use": 0,
+    "duration_working_days": {
+      "state": "unavailable",
+      "reason": "no CALENDAR table, so there is no shift pattern to convert on"
+    },
+    "resource_count": 0,
+    "resource_assignment_count": 0,
+    "activity_code_assignment_count": 0,
+    "external_relationship_count": 0,
+    "driving_path_flag_count": 0
+  },
+  "driving_path": {
+    "definition": "no programme in this file — there is nothing to walk",
+    "state": "skip",
+    "reason": "the file carries no records",
+    "member_count": 0,
+    "members": [],
+    "flagged": []
+  },
+  "ingest": {
+    "accept": false,
+    "guard": "unreadable",
+    "reason": "no %E end marker, and 397,781 NUL bytes",
+    "message": "This file is not a complete P6 export. Every one of its 397,781 bytes is zero — there is no header, no data and no end-of-file marker in it at all. That is what an interrupted download or a file-sync error leaves behind, not anything P6 wrote. Download or re-export the file, then try again."
+  },
+  "readability": {
+    "starts_with_ermhdr": false,
+    "reaches_end_marker": false,
+    "nul_byte_count": 397781,
+    "trailing_nul_run": 397781,
+    "complete_bytes": 0,
+    "verdict": "unreadable"
+  }
+}

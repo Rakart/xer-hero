@@ -1,0 +1,948 @@
+<meta charset="utf-8">
+<title>xer-hero — late-arriving viewer state prototype</title>
+<style>
+/* ---------------------------------------------------------------------------
+   PROTOTYPE — throwaway. Ticket 037, "Does a late-arriving pressed state read
+   as a bug?". Extends 007's row list (assets/prototypes/007-storefront-grid.html)
+   with the bookmark slot 016 added to it, 023's header cluster, and a simulated
+   `GET /api/viewer` that lands after ?viewer=<ms>.
+
+   The cached artefact is the signed-out render (035). Everything per-viewer —
+   the upvote pressed state, the bookmark pressed state, the Handle in the
+   header — arrives from one request after paint. This page lets you watch it.
+
+   ?viewer=<ms>              simulated round trip, default 400
+   ?variant=plain|hidden|header   the three candidate treatments
+   ?page=shelf|detail        25 rows down a column, or one cluster above the fold
+   ?signed=in|out            signed-out is the control: it makes no request at all
+   ?theme=dark|light
+
+   The seeded viewer state is five bookmarks (rows 2, 7, 11, 18, 24) and three
+   votes (rows 4, 13, 21) across the visible page of 25.
+   The corpus is 007's, same seed, same 40 programmes — but `voted_by_me` is
+   never read from it, because in this model no per-viewer fact is in the HTML.
+   Not production code.
+--------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --plane:      #f9f9f7;
+  --surface:    #fcfcfb;
+  --sunk:       #f2f2ee;
+  --ink:        #0b0b0b;
+  --ink-2:      #52514e;
+  --muted:      #898781;
+  --grid:       #e1e0d9;
+  --axis:       #c3c2b7;
+  --hair:       rgba(11,11,11,0.10);
+  --series:     #2a78d6;
+  --series-100: #cde2fb;
+  --series-250: #86b6ef;
+  --neg:        #d03b3b;
+  --slack:      #eda100;
+  --good:       #0ca30c;
+  --warn:       #fab219;
+  --chip:       rgba(11,11,11,0.05);
+  /* the control bar inverts with the theme (007's convention), so its own
+     readout colours have to invert with it */
+  --bar-ok:   #6fdc6f;
+  --bar-bad:  #ff8080;
+  --bar-warn: #ffc857;
+  --bar-dim:  #9a9a96;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane:      #0d0d0d;
+    --surface:    #1a1a19;
+    --sunk:       #131312;
+    --ink:        #ffffff;
+    --ink-2:      #c3c2b7;
+    --muted:      #898781;
+    --grid:       #2c2c2a;
+    --axis:       #383835;
+    --hair:       rgba(255,255,255,0.10);
+    --series:     #3987e5;
+    --series-100: #184f95;
+    --series-250: #256abf;
+    --neg:        #d03b3b;
+    --slack:      #c98500;
+    --good:       #0ca30c;
+    --warn:       #fab219;
+    --chip:       rgba(255,255,255,0.07);
+    --bar-ok:   #0a7a0a;
+    --bar-bad:  #a32020;
+    --bar-warn: #8a5c00;
+    --bar-dim:  #6a6963;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane:      #0d0d0d;
+  --surface:    #1a1a19;
+  --sunk:       #131312;
+  --ink:        #ffffff;
+  --ink-2:      #c3c2b7;
+  --muted:      #898781;
+  --grid:       #2c2c2a;
+  --axis:       #383835;
+  --hair:       rgba(255,255,255,0.10);
+  --series:     #3987e5;
+  --series-100: #184f95;
+  --series-250: #256abf;
+  --neg:        #d03b3b;
+  --slack:      #c98500;
+  --good:       #0ca30c;
+  --warn:       #fab219;
+  --chip:       rgba(255,255,255,0.07);
+  --bar-ok:   #0a7a0a;
+  --bar-bad:  #a32020;
+  --bar-warn: #8a5c00;
+  --bar-dim:  #6a6963;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-bottom: 190px;
+}
+a { color: inherit; }
+.wrap { max-width: 1480px; margin: 0 auto; padding: 24px 20px 0; }
+.num { font-variant-numeric: tabular-nums; }
+.mut { color: var(--muted); }
+.dot { color: var(--axis); padding: 0 .4em; }
+
+/* ---- site header, with 023's right-aligned auth cluster ----------------- */
+header.site {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding-bottom: 14px; border-bottom: 1px solid var(--hair); margin-bottom: 0;
+}
+header.site h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
+header.site .tag { color: var(--muted); font-size: 12px; }
+header.site .spacer { flex: 1; }
+.facets { display: flex; gap: 6px; flex-wrap: wrap; }
+.facet {
+  font-size: 12px; padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--hair); color: var(--ink-2); background: var(--surface);
+}
+.facet.on { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+/* 035 §4.4: two-state box, right-aligned with a min-width, so nothing to its
+   left ever moves. The label inside it does change — that is the known residue. */
+.auth { min-width: 230px; display: flex; justify-content: flex-end; gap: 6px; align-items: baseline; }
+.authlabel { display: inline-flex; gap: 6px; align-items: baseline; font-size: 13px; white-space: nowrap; }
+.authlabel a { text-decoration: none; border-bottom: 1px solid var(--hair); }
+.authlabel a:hover { border-bottom-color: var(--series); }
+
+/* ---- the note strip: what the current variant is doing ------------------ */
+.note {
+  min-height: 42px; display: block; max-width: 1180px;
+  font-size: 12.5px; line-height: 1.5; color: var(--ink-2);
+  border-bottom: 1px solid var(--hair);
+  padding: 8px 0 10px; margin-bottom: 14px;
+}
+.note code { font-size: 11.5px; background: var(--chip); padding: 1px 4px; border-radius: 3px; }
+.note b { color: var(--ink); }
+.note .pipn { color: var(--axis); }
+.count { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+
+/* ---- atoms (007) -------------------------------------------------------- */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 2px 7px; border-radius: 4px;
+  background: var(--chip); color: var(--ink-2); white-space: nowrap;
+}
+.badge.ghost { background: none; border: 1px solid var(--hair); color: var(--muted); }
+.sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dcma { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); }
+.cells { display: flex; gap: 2px; }
+.cell { width: 6px; height: 11px; border-radius: 1px; background: var(--grid); }
+.cell.pass { background: var(--good); }
+.cell.fail { background: var(--neg); }
+.cell.skip { background: none; border: 1px dashed var(--axis); }
+.cap { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ---- list shell (007, plus one 32px slot for 016's bookmark) ------------ */
+.list { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; }
+.row {
+  display: grid; gap: 12px; align-items: center;
+  grid-template-columns: 128px minmax(150px,1fr) 84px 58px 88px 32px 40px 108px 262px 88px 112px 52px;
+  padding: 10px 14px; border-bottom: 1px solid var(--hair);
+}
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--chip); }
+.row.head { padding: 6px 14px; background: var(--plane); position: sticky; top: 0; z-index: 3; }
+.row.head > span, .row.head > div { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.title { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+
+/* ---- fixed-slot sub-grids — nothing in a row is allowed to flow --------- */
+.floatgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 4px; }
+.floatgrid span {
+  font-size: 10.5px; font-variant-numeric: tabular-nums; text-align: center;
+  color: var(--muted); text-transform: none; letter-spacing: 0;
+}
+.floatgrid span.z { opacity: .35; }
+.row.head .floatgrid span { font-size: 10px; color: var(--muted); }
+
+/* upvote pill — pressed changes fill and colour only, never a dimension */
+.vote {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  border: 1px solid var(--hair); background: none; color: var(--ink-2);
+  border-radius: 999px; padding: 3px 9px 3px 7px; font: inherit; font-size: 12px;
+}
+.vote:hover { border-color: var(--series); color: var(--series); }
+.vote:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.vote.voted { border-color: var(--series); color: var(--series); background: var(--series-100); }
+.vote .caret { font-size: 9px; line-height: 1; }
+.vote .n { font-variant-numeric: tabular-nums; font-weight: 600; }
+.votebar { position: relative; height: 4px; background: var(--grid); border-radius: 2px; margin-top: 4px; }
+.votebar i { position: absolute; inset: 0 auto 0 0; background: var(--series-250); border-radius: 2px; }
+
+/* bookmark — 016 §6 / 007's amendment. Fixed 26x26 box, icon only on the row,
+   so the saved state changes a fill and never a width. */
+.bm {
+  width: 26px; height: 26px; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--hair); border-radius: 6px;
+  background: none; color: var(--ink-2); font: inherit;
+}
+.bm:hover { border-color: var(--series); color: var(--series); }
+.bm:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.bm svg { display: block; }
+.bm svg path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.bm.saved { border-color: var(--series); color: var(--series); background: var(--series-100); }
+.bm.saved svg path { fill: currentColor; }
+
+/* progress bar */
+.prog { display: block; }
+.prog .bar { position: relative; height: 7px; background: var(--grid); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.prog .bar i { position: absolute; inset: 0 auto 0 0; background: var(--series); border-radius: 4px; }
+
+/* ---- activity magnitude: fixed 10-slot track --------------------------- */
+.blocks { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 4px; }
+.blocks i { height: 10px; border-radius: 1px; background: var(--grid); position: relative; overflow: hidden; }
+.blocks i b { position: absolute; inset: 0 auto 0 0; background: var(--series-250); display: block; }
+.blocks i.full b { width: 100%; }
+.blocks.over i b { background: var(--series); }
+
+/* =========================================================================
+   THE ONE THING THIS PROTOTYPE ADDS — variant `hidden` (035 asset §10)
+   Signed-in viewers only, and only while the response is outstanding.
+   `visibility: hidden` reserves the box, so it cannot move anything.
+   ========================================================================= */
+body.v-hidden.signedin.pending .vote,
+body.v-hidden.signedin.pending .bm,
+body.v-hidden.signedin.pending .bmbtn { visibility: hidden; }
+
+/* ---- detail page (008's fold, trimmed to the part 037 is about) --------- */
+.crumb { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.crumb a { text-decoration: none; }
+.idrow { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.idrow .grow { flex: 1 1 420px; min-width: 0; }
+.idrow h1 { font-size: 23px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.015em; }
+.byline { font-size: 13px; color: var(--ink-2); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.actcol { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.acts { display: flex; gap: 8px; align-items: center; }
+.btn {
+  font: inherit; font-size: 13px; cursor: pointer; border-radius: 7px;
+  border: 1px solid var(--hair); background: var(--surface); color: var(--ink);
+  padding: 7px 13px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { border-color: var(--axis); }
+.btn.primary { background: var(--ink); color: var(--plane); border-color: var(--ink); font-weight: 500; }
+.btn.sm { padding: 4px 9px; font-size: 12px; }
+.btn .sz { color: var(--muted); font-size: 11.5px; }
+.btn.primary .sz { color: var(--axis); }
+.btn.vote { border-radius: 999px; padding: 6px 12px 6px 10px; color: var(--ink); }
+.btn.vote.voted { border-color: var(--series); color: var(--series); background: var(--series-100); }
+/* the detail-page bookmark carries a label, and the label changes width.
+   min-width pins the box so Fork and Download cannot be pushed sideways. */
+.bmbtn { min-width: 96px; justify-content: flex-start; }
+.bmbtn .bl { min-width: 42px; text-align: left; }
+.bmbtn svg { display: block; }
+.bmbtn svg path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.bmbtn.saved { border-color: var(--series); color: var(--series); background: var(--series-100); }
+.bmbtn.saved svg path { fill: currentColor; }
+select.rev { font: inherit; font-size: 12.5px; padding: 5px 8px; border-radius: 6px;
+  border: 1px solid var(--hair); background: var(--surface); color: var(--ink); }
+h2.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); margin: 26px 0 10px; font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; }
+.pad { padding: 14px 16px; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--hair);
+  border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; margin-top: 18px; }
+.tile { background: var(--surface); padding: 10px 12px; min-width: 0; }
+.tile .lab { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .val { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin-top: 1px; }
+.tile .val small { font-size: 12px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.tile .sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ---- control bar (007's switcher, grown into a rig) -------------------- */
+#bar {
+  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; z-index: 50;
+  max-width: calc(100vw - 24px);
+  background: var(--ink); color: var(--plane);
+  border-radius: 12px; padding: 7px 10px;
+  box-shadow: 0 6px 26px rgba(0,0,0,.32); font-size: 12.5px;
+}
+#bar .grp { display: flex; align-items: center; gap: 3px; }
+#bar .lab { padding: 0 6px 0 2px; color: rgba(150,150,150,1); text-transform: uppercase;
+  letter-spacing: .05em; font-size: 10px; }
+#bar button, #bar .rerun {
+  font: inherit; font-size: 12.5px; cursor: pointer; border: 0; border-radius: 999px;
+  background: transparent; color: inherit; padding: 4px 9px;
+}
+#bar button:hover { background: rgba(128,128,128,.35); }
+#bar button:focus-visible { outline: 2px solid var(--series-250); outline-offset: 1px; }
+#bar button.on { background: rgba(128,128,128,.5); font-weight: 600; }
+#bar .sep { width: 1px; align-self: stretch; background: rgba(128,128,128,.4); margin: 2px 3px; }
+#bar .rerun { background: var(--series); font-weight: 600; padding: 5px 12px; }
+#bar .rerun:hover { background: var(--series-250); color: var(--ink); }
+#bar kbd { font: inherit; font-size: 10px; opacity: .8; border: 1px solid rgba(128,128,128,.6);
+  border-radius: 3px; padding: 0 3px; margin-left: 5px; }
+#bar input[type=range] { width: 96px; accent-color: var(--series-250); vertical-align: middle; }
+#bar .ms { font-variant-numeric: tabular-nums; min-width: 52px; display: inline-block; text-align: right; }
+#readout {
+  min-width: 320px; padding: 2px 8px; line-height: 1.35;
+  border-left: 1px solid rgba(128,128,128,.4);
+}
+#readout .l1 { font-variant-numeric: tabular-nums; }
+#readout .l2 { font-size: 11px; color: var(--bar-dim); font-variant-numeric: tabular-nums; }
+#readout .ok { color: var(--bar-ok); }
+#readout .bad { color: var(--bar-bad); }
+#readout .warnc { color: var(--bar-warn); }
+</style>
+
+<div class="wrap">
+  <header class="site">
+    <h1 data-probe="hard" data-key="wordmark">xer-hero</h1>
+    <span class="tag">prototype | ticket 037 | fake data</span>
+    <span class="spacer"></span>
+    <div class="facets" data-probe="hard" data-key="facets">
+      <span class="facet on">All sectors</span><span class="facet">Rail</span>
+      <span class="facet">Highways</span><span class="facet">Water</span>
+      <span class="facet">Energy</span><span class="facet">Sort: newest</span>
+    </div>
+    <div class="auth" id="auth" data-probe="hard" data-key="auth-box"></div>
+  </header>
+  <div class="note" id="note"></div>
+  <p class="count" id="count" data-probe="hard" data-key="count"></p>
+  <div id="root"></div>
+</div>
+
+<div id="bar"></div>
+
+<script>
+/* ===========================================================================
+   Fake corpus — 007's, verbatim, same seed, same 40 programmes.
+   `voted_by_me` is still generated so the random sequence matches 007's
+   exactly, and is then never read: under 035 no per-viewer fact is in the HTML.
+   =========================================================================== */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd = mulberry32(20260807);
+const pick = a => a[Math.floor(rnd()*a.length)];
+const ri = (lo,hi) => lo + Math.floor(rnd()*(hi-lo+1));
+
+const HANDLES = ["planner_dave","tender_lab","ravi_pm","northline","cpm_kate","gridworks","aqua_planner","tunnelrat","p6_owl","bex_schedules"];
+const NOUNS = [
+  ["Twin-track electrification","Rail"],["Station remodelling — Stage 3","Rail"],["Depot resignalling","Rail"],
+  ["Junction 21A improvement","Highways"],["Smart motorway retrofit","Highways"],["Bypass — earthworks and structures","Highways"],
+  ["Reservoir spillway refurbishment","Water"],["Trunk main replacement","Water"],["Treatment works upgrade","Water"],
+  ["Grid connection — 400kV","Energy"],["Onshore substation","Energy"],["Battery storage compound","Energy"],
+  ["Taxiway resurfacing","Aviation"],["Terminal pier extension","Aviation"],
+  ["Cross-passage construction","Tunnelling"],["TBM drive — south","Tunnelling"],
+  ["Hospital ward block fit-out","Buildings"],["Data centre shell and core","Buildings"],
+  ["Quay wall reconstruction","Marine"],["Lock gate replacement","Marine"]
+];
+function makeSCurve(n){
+  const out = [];
+  for (let i=0;i<n;i++){
+    const x = i/(n-1);
+    const s = 1/(1+Math.exp(-9*(x-0.5)));
+    out.push(Math.round(Math.max(0,Math.min(1, s + (rnd()-0.5)*0.02))*1000)/1000);
+  }
+  out[0] = 0; out[n-1] = 1;
+  return out;
+}
+function makeOne(i){
+  const [name, sector] = NOUNS[i % NOUNS.length];
+  const suffix = i >= NOUNS.length ? ["— Option 2","— rev C","(alt logic)","— Phase 2"][i % 4] : "";
+  const isTender = rnd() < 0.35;
+  const pct = isTender ? 0 : Math.round(rnd()*92);
+  const upvotes = rnd() < 0.2 ? 0 : Math.round(Math.pow(rnd(), 2.2) * 340);
+  const acts = ri(280, 12400);
+  const start = new Date(Date.UTC(ri(2017,2024), ri(0,11), 1));
+  const months = ri(14, 78);
+  const finish = new Date(start); finish.setUTCMonth(finish.getUTCMonth()+months);
+  const dataDate = new Date(start); dataDate.setUTCMonth(dataDate.getUTCMonth()+Math.round(months*pct/100));
+  const applicable = isTender ? 10 : (rnd()<0.5 ? 10 : 14);
+  const passed = ri(Math.max(2, applicable-7), applicable);
+  const negPct = isTender ? 0 : Math.round(rnd()*rnd()*70);
+  const highPct = isTender ? Math.round(20+rnd()*55) : Math.round(rnd()*25);
+  const fails = [];
+  if (negPct) fails.push("negative float");
+  if (highPct > 5) fails.push("high float");
+  if (rnd()<0.4) fails.push("leads");
+  return {
+    title: (name + " " + suffix).trim(),
+    sector: rnd() < 0.12 ? null : sector,
+    parent: rnd() < 0.3 ? pick(NOUNS)[0] : null,
+    rev_no: isTender ? ri(1,3) : ri(1,26),
+    uploaded_days_ago: ri(0, 420),
+    uploader: pick(HANDLES),
+    p6_version: pick(["6.0","8.3","8.3","15.2","19.12","23.12"]),
+    activity_count: acts,
+    start, finish, data_date: isTender ? null : dataDate,
+    pct_complete: pct,
+    checks_passed: passed,
+    checks_applicable: applicable,
+    upvotes,
+    voted_by_me: rnd() < 0.15,        // generated for sequence parity; never read
+    card: {
+      s_curve: makeSCurve(16),
+      float_mix: { neg: negPct, ok: 100-negPct-highPct, high: highPct },
+      milestone_count: ri(4,260),
+      relationship_count: Math.round(acts*(1.4+rnd()*0.6)),
+      wbs_depth: rnd()<0.12 ? 1 : ri(2,6),
+      failed_checks: fails.slice(0,3),
+      fork_count: rnd()<0.4 ? ri(1,9) : 0,
+      revision_count: isTender ? ri(1,3) : ri(1,26),
+      issues_count: rnd()<0.18 ? ri(1,3) : 0
+    }
+  };
+}
+const DATA = Array.from({length: 40}, (_,i) => makeOne(i));
+
+/* the two real fixture shapes, pinned to the top */
+Object.assign(DATA[0], {
+  title: "Station remodelling — Stage 3", sector: "Rail", pct_complete: 41,
+  activity_count: 1751, rev_no: 23, p6_version: "6.0",
+  checks_passed: 6, checks_applicable: 10, upvotes: 214
+});
+Object.assign(DATA[0].card, {
+  float_mix: { neg: 69, ok: 27, high: 4 }, failed_checks: ["negative float","high duration"],
+  wbs_depth: 4, revision_count: 23, fork_count: 3
+});
+Object.assign(DATA[1], {
+  title: "Quay wall reconstruction — Option 2", sector: "Marine", pct_complete: 0,
+  activity_count: 3344, rev_no: 1, p6_version: "8.3",
+  checks_passed: 5, checks_applicable: 10, data_date: null, parent: null,
+  upvotes: 37
+});
+Object.assign(DATA[1].card, {
+  float_mix: { neg: 0, ok: 24, high: 76 }, failed_checks: ["leads","lags","FS < 90%"],
+  wbs_depth: 1, revision_count: 1, fork_count: 3
+});
+DATA[2].sector = null;                                                  // unsectored
+DATA[3].card.issues_count = 2;                                          // partially analysed
+DATA[4].start = null; DATA[4].finish = null; DATA[4].data_date = null;   // dateless
+DATA[5].activity_count = 310;                                           // tiny programme
+
+/* ===========================================================================
+   The seeded viewer state — what `GET /api/viewer?p=<25 ids>` comes back with.
+   Five bookmarks and three votes, spread down the page rather than clustered
+   at the top: two bookmarks and one vote land above the fold, the rest are
+   found by scrolling, which is how a real shelf reads.
+   =========================================================================== */
+const PAGE_SIZE = 25;
+const VIEWER = {
+  handle: "planner-a3f92c",
+  bookmarked: [1, 6, 10, 17, 23],   // rows 2, 7, 11, 18, 24
+  voted:      [3, 12, 20]           // rows 4, 13, 21
+};
+/* the denormalised total already contains your own vote, so a voted row must
+   never read 0 — and the number must not change when the pressed state lands */
+VIEWER.voted.forEach(i => { if (DATA[i].upvotes === 0) DATA[i].upvotes = 3 + i; });
+
+const PAGE = DATA.slice(0, PAGE_SIZE);
+const MAXVOTES = Math.max(...DATA.map(p => p.upvotes));
+
+/* ===========================================================================
+   Helpers — 007's
+   =========================================================================== */
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtNum = n => n.toLocaleString("en-GB");
+const fmtMY = d => d ? MON[d.getUTCMonth()] + " " + String(d.getUTCFullYear()).slice(2) : "—";
+const ago = d => d===0 ? "today" : d<30 ? d+"d" : d<365 ? Math.round(d/30)+"mo" : Math.round(d/365)+"y";
+let UID = 0;
+
+const BM_SVG = `<svg viewBox="0 0 16 16" width="13" height="15" aria-hidden="true"><path d="M3.2 1.9h9.6v12.4L8 10.7l-4.8 3.6z"/></svg>`;
+
+function sliver(p, h=30){
+  const f = p.card.float_mix;
+  const seg = (pct,col,label) => pct<=0 ? "" :
+    `<div title="${label}: ${pct}%" style="flex:${pct} 0 0;background:${col};height:${h}px;border-radius:2px"></div>`;
+  return `<div style="display:flex;gap:2px" aria-label="float distribution">
+    ${seg(f.neg,"var(--neg)","negative float")}
+    ${seg(f.ok,"var(--series)","0–44 days float")}
+    ${seg(f.high,"var(--slack)","over 44 days float")}</div>`;
+}
+function floatCaption(p){
+  const f = p.card.float_mix;
+  const slot = (v, col) => `<span class="${v?"":"z"}"${v&&col?` style="color:${col}"`:""}>${v}%</span>`;
+  return `<div class="floatgrid">${slot(f.neg,"var(--neg)")}${slot(f.ok,"")}${slot(f.high,"")}</div>`;
+}
+function dcmaChip(p){
+  let cells = "";
+  for (let i=0;i<14;i++){
+    cells += i >= p.checks_applicable ? `<span class="cell skip"></span>`
+           : i <  p.checks_passed     ? `<span class="cell pass"></span>`
+           :                            `<span class="cell fail"></span>`;
+  }
+  return `<span class="dcma"
+    title="${p.checks_passed} of ${p.checks_applicable} DCMA checks passed; ${14-p.checks_applicable} not applicable">
+    <span class="cells">${cells}</span>
+    <span class="num" style="font-weight:600">${p.checks_passed}/${p.checks_applicable}</span></span>`;
+}
+function curveLocal(p, w=248, h=34, caption=true){
+  if (!p.start || !p.finish) return `<div><span class="cap">no start or finish date</span></div>`;
+  const pts = p.card.s_curve, n = pts.length, pad = 2;
+  const iw = w - pad*2, ih = h - pad*2 - 1;
+  const X = i => pad + (i/(n-1))*iw, Y = v => pad + ih - v*ih;
+  const d = pts.map((v,i) => `${i?"L":"M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  const cut = pad + (p.pct_complete/100)*iw;
+  const uid = "clip" + (++UID);
+  return `<div>
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"
+      role="img" aria-label="cumulative planned finishes; ${p.pct_complete}% complete">
+      <defs><clipPath id="${uid}"><rect x="0" y="0" width="${cut.toFixed(1)}" height="${h}"/></clipPath></defs>
+      <line x1="0" y1="${pad+ih}" x2="${w}" y2="${pad+ih}" stroke="var(--grid)" stroke-width="1"/>
+      <path d="${d}L${X(n-1).toFixed(1)},${pad+ih}L${X(0)},${pad+ih}Z" fill="var(--series)" fill-opacity="0.10"/>
+      <path d="${d}L${X(n-1).toFixed(1)},${pad+ih}L${X(0)},${pad+ih}Z" fill="var(--series)" fill-opacity="0.24" clip-path="url(#${uid})"/>
+      <path d="${d}" fill="none" stroke="var(--series)" stroke-width="2"
+            stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      ${p.data_date ? `<line x1="${cut.toFixed(1)}" y1="0" x2="${cut.toFixed(1)}" y2="${pad+ih}"
+            stroke="var(--ink)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          <polygon points="${(cut-3.5).toFixed(1)},0 ${(cut+3.5).toFixed(1)},0 ${cut.toFixed(1)},4.5"
+            fill="var(--ink)"/>` : ``}
+    </svg>
+    ${caption ? `<div class="cap" style="display:grid;grid-template-columns:1fr 1fr 1fr">
+      <span style="text-align:left">${fmtMY(p.start)}</span>
+      <span style="text-align:center;color:var(--ink-2)">${p.data_date ? "▼ data date " + fmtMY(p.data_date) : "no data date"}</span>
+      <span style="text-align:right">${fmtMY(p.finish)}</span>
+    </div>` : ``}</div>`;
+}
+const SLOTS = 10, PER_SLOT = 1000;
+function actBlocks(p){
+  const n = p.activity_count, over = n > SLOTS*PER_SLOT;
+  const filled = Math.min(SLOTS, n/PER_SLOT);
+  let b = "";
+  for (let i=0;i<SLOTS;i++){
+    const f = Math.max(0, Math.min(1, filled - i));
+    b += f >= 1 ? `<i class="full"><b></b></i>`
+       : f > 0  ? `<i><b style="width:${Math.max(20, f*100).toFixed(0)}%"></b></i>`
+       :          `<i></i>`;
+  }
+  return `<div>
+    <div class="num" style="font-size:13px">${fmtNum(n)}${over?" +":""}</div>
+    <div class="blocks${over?" over":""}" title="${fmtNum(n)} activities | one slot per 1,000, ten slots">${b}</div></div>`;
+}
+function sectorCell(p){
+  return `<div>${p.sector ? `<span class="badge">${p.sector}</span>`
+                          : `<span class="badge ghost">unsectored</span>`}</div>`;
+}
+function p6Cell(p){ return `<div class="num" style="font-size:12.5px">${p.p6_version}</div>`; }
+function revCell(p){
+  return `<div class="num" style="font-size:12.5px;text-align:right"
+    title="revision ${p.rev_no} of this programme">r${p.rev_no}</div>`;
+}
+function progressCell(p){
+  return `<div class="prog" title="${p.pct_complete}% of activities complete">
+    <div class="num" style="font-size:12.5px">${p.pct_complete}%</div>
+    <div class="bar"><i style="width:${p.pct_complete}%"></i></div></div>`;
+}
+function titleCell(p){
+  const flags = [];
+  if (p.card.issues_count) flags.push(`<span class="badge" style="color:var(--warn)">⚠ partial</span>`);
+  if (p.card.wbs_depth === 1) flags.push(`<span class="badge">no WBS</span>`);
+  return `<div>
+    <div class="title">${p.title} ${flags.join("")}</div>
+    <div class="sub"><span>${p.uploader}</span>${p.parent ? ` | forked from ${p.parent}` : ``}</div></div>`;
+}
+function floatCell(p){ return `<div>${sliver(p)}${floatCaption(p)}</div>`; }
+function agoCell(p){ return `<div class="num cap" style="text-align:right">${ago(p.uploaded_days_ago)}</div>`; }
+
+/* ---- the two per-viewer controls, always drawn, always unpressed -------- */
+function voteCell(p, i){
+  const w = MAXVOTES ? Math.sqrt(p.upvotes)/Math.sqrt(MAXVOTES)*100 : 0;
+  return `<div>
+    <button class="vote" type="button" data-vote="${i}" aria-pressed="false"
+      title="${p.upvotes} upvote${p.upvotes===1?"":"s"}">
+      <span class="caret">▲</span><span class="n">${fmtNum(p.upvotes)}</span></button>
+    <div class="votebar"><i style="width:${w.toFixed(1)}%"></i></div></div>`;
+}
+function bmCell(p, i){
+  return `<div>
+    <button class="bm" type="button" data-bm="${i}" aria-pressed="false"
+      aria-label="Save for later" title="Save for later">${BM_SVG}</button></div>`;
+}
+
+/* ===========================================================================
+   The shelf
+   =========================================================================== */
+const HEAD_FLOAT = `<div><span>float</span>
+  <div class="floatgrid"><span>neg</span><span>0–44d</span><span>&gt;44d</span></div></div>`;
+function ShelfPage(){
+  return `<div class="list">
+    <div class="row head">${HEAD_FLOAT}<span>programme</span><span>sector</span><span>P6</span>
+      <span>upvotes</span><span>save</span><span style="text-align:right">rev</span><span>activities</span>
+      <span>window &amp; data date</span><span>complete</span><span>DCMA</span>
+      <span style="text-align:right">age</span></div>`
+    + PAGE.map((p,i) => `<div class="row">
+        ${floatCell(p)}${titleCell(p)}${sectorCell(p)}${p6Cell(p)}${voteCell(p,i)}${bmCell(p,i)}${revCell(p)}
+        ${actBlocks(p)}${curveLocal(p)}${progressCell(p)}<div>${dcmaChip(p)}</div>${agoCell(p)}</div>`).join("")
+    + `</div>`;
+}
+
+/* ===========================================================================
+   The detail page — 008's fold, trimmed. One control cluster, above the fold.
+   =========================================================================== */
+function DetailPage(){
+  const P = DATA[0];
+  const tile = (lab, val, sub) => `<div class="tile"><div class="lab">${lab}</div>
+    <div class="val">${val}</div>${sub ? `<div class="sub">${sub}</div>` : ""}</div>`;
+  return `<div class="detail">
+    <div class="crumb"><a href="#">shelf</a><span class="dot">/</span><a href="#">Rail</a>
+      <span class="dot">/</span>${P.title}</div>
+    <div class="idrow">
+      <div class="grow">
+        <h1>${P.title}</h1>
+        <div class="byline">
+          <span>${P.uploader}</span><span class="dot">|</span>
+          <span class="badge">${P.sector}</span>
+          <span class="badge ghost">CC BY 4.0</span>
+          <span class="dot">|</span><span>P6 ${P.p6_version}</span>
+          <span class="dot">|</span><span>uploaded ${ago(P.uploaded_days_ago)} ago</span>
+        </div>
+        <div class="byline" style="margin-top:6px;font-size:12.5px">
+          <span class="mut">lineage</span>
+          <span>forked from <a href="#">Depot resignalling</a> at <b>r4</b>, by <a href="#">northline</a></span>
+          <span class="dot">|</span><a href="#">${P.card.revision_count} revisions</a>
+          <span class="dot">|</span><a href="#">${P.card.fork_count} forks of this</a>
+        </div>
+      </div>
+      <div class="actcol">
+        <div class="acts">
+          <button class="btn vote" type="button" data-vote="0" aria-pressed="false"
+            title="${P.upvotes} upvotes"><span class="caret">▲</span> <b class="n num">${fmtNum(P.upvotes)}</b></button>
+          <button class="btn bmbtn" type="button" data-bm="0" aria-pressed="false"
+            title="Save for later">${BM_SVG}<span class="bl">Save</span></button>
+          <button class="btn" type="button">Fork</button>
+          <a class="btn primary" href="#">Download .xer <span class="sz num">2.1 MB gz</span></a>
+        </div>
+        <span style="display:inline-flex;gap:6px;align-items:center">
+          <select class="rev"><option>r23 — current</option><option>r22</option><option>r21</option></select>
+          <button class="btn sm" type="button" title="not in v1">Compare…</button></span>
+      </div>
+    </div>
+    <div class="tiles">
+      ${tile("Activities", fmtNum(P.activity_count), `${fmtNum(P.card.milestone_count)} milestones`)}
+      ${tile("Complete", P.pct_complete + "<small>%</small>", "at " + fmtMY(P.data_date))}
+      ${tile("Window", `${P.start.getUTCFullYear()}–${P.finish.getUTCFullYear()}`, `${fmtMY(P.start)} → ${fmtMY(P.finish)}`)}
+      ${tile("Relationships", fmtNum(P.card.relationship_count), "1.9 per activity")}
+      ${tile("DCMA", `${P.checks_passed}<small>/${P.checks_applicable}</small>`, "4 not applicable")}
+      ${tile("Revisions", P.card.revision_count, "r23 is current")}
+      ${tile("Forks", P.card.fork_count, "4 in the family")}
+      ${tile("Negative float", P.card.float_mix.neg + "<small>%</small>", "of activities")}
+    </div>
+    <h2 class="sec">The shape of the programme</h2>
+    <div class="card pad">
+      <div style="font-size:13px;font-weight:600">Activities finished, cumulative</div>
+      <div class="sub" style="margin-bottom:8px">by month | 16 buckets | the rule marks the data date</div>
+      ${curveLocal(P, 1280, 190)}
+      <div style="margin-top:12px">${dcmaChip(P)}</div>
+    </div>
+    <h2 class="sec">Where the flash would be</h2>
+    <div class="card pad" style="font-size:12.5px;color:var(--ink-2)">
+      One control cluster, top right, above the fold — against 25 clusters down a column on
+      the shelf. 035 assumed without evidence that the shelf is the harder case. Compare the
+      two at the same delay and decide whether it was right.
+    </div>
+  </div>`;
+}
+
+/* ===========================================================================
+   Prototype chrome: URL params, the run loop, the geometry check
+   =========================================================================== */
+const DELAYS = [
+  [0,    "next frame — not reachable over a network"],
+  [150,  "warm function, warm database"],
+  [400,  "a realistic median round trip"],
+  [1200, "poor connection, or a cold function"],
+  [3000, "bad mobile — or Neon waking from autosuspend (004)"]
+];
+const VARIANTS = {
+  plain:  "plain",
+  hidden: "hidden",
+  header: "header-only"
+};
+function params(){
+  const u = new URL(location.href);
+  const raw = parseInt(u.searchParams.get("viewer"), 10);
+  return {
+    delay:   Number.isFinite(raw) ? Math.max(0, Math.min(6000, raw)) : 400,
+    variant: VARIANTS[u.searchParams.get("variant")] ? u.searchParams.get("variant") : "plain",
+    page:    u.searchParams.get("page") === "detail" ? "detail" : "shelf",
+    signed:  u.searchParams.get("signed") === "out" ? "out" : "in",
+    theme:   u.searchParams.get("theme")
+  };
+}
+function setParam(k, v){
+  const u = new URL(location.href);
+  u.searchParams.set(k, v);
+  history.replaceState(null, "", u);
+  run();
+}
+
+let RUN = 0, PENDING = false, T0 = 0, RAF = 0, LANDED = -1;
+let BEFORE = null, DRIFT = null, TOUCHED = new Set(), OVERWRITTEN = 0;
+
+function authHTML(showHandle){
+  return showHandle
+    ? `<span class="authlabel" data-probe="soft" data-key="auth-label"><a href="#">Upload</a><span class="dot">|</span><a href="#">${VIEWER.handle}</a></span>`
+    : `<span class="authlabel" data-probe="soft" data-key="auth-label"><a href="#">Sign in</a></span>`;
+}
+
+function noteHTML(p){
+  const rows = b => b.map(i => i+1).join(", ");
+  if (p.signed === "out")
+    return `<b>Signed out.</b> No <code>/api/viewer</code> request is made at all — this is the cached
+      artefact, byte-identical to what a crawler gets. <span class="pipn">|</span> Use it as the control:
+      switch to <b>signed in</b> and see whether you can tell the difference after the response lands.`;
+  if (p.variant === "hidden")
+    return `<b>hidden</b> — 035 asset §10, implemented as written: signed-in only, both controls carry
+      <code>visibility: hidden</code> until the response lands, so the slot is blank rather than wrong.
+      <span class="pipn">|</span> Watch what goes blank with them. The <b>public upvote count lives inside
+      the pill</b>, so it disappears too — while the magnitude bar underneath it, which is not a control,
+      stays. The header still swaps late; that is §10's <i>other</i> fix, not this one.`;
+  if (p.variant === "header")
+    return `<b>header-only</b> — the Handle comes from a Clerk session claim, so the header never swaps.
+      The row controls flash exactly as in <b>plain</b>. <span class="pipn">|</span> This isolates the
+      question: if it still reads wrong here, the rows are the problem, not the header.`;
+  return `<b>plain</b> — 035's decision as it stands. Both controls are drawn unpressed in the cached
+    HTML and fill in when the response lands. <span class="pipn">|</span> Bookmarks land on rows
+    <b>${rows(VIEWER.bookmarked)}</b>, votes on rows <b>${rows(VIEWER.voted)}</b>; the header swaps
+    <code>Sign in</code> → <code>Upload | ${VIEWER.handle}</code> at the same moment.`;
+}
+
+/* ---- geometry probes: prove that nothing moves -------------------------- */
+function tagProbes(){
+  document.querySelectorAll("#root .row:not(.head)").forEach((row, r) => {
+    [...row.children].forEach((c, i) => { c.dataset.probe = "hard"; c.dataset.key = `r${r}c${i}`; });
+  });
+  document.querySelectorAll("#root .detail .acts > *, #root .detail .tile, #root .detail h1").forEach((el, i) => {
+    el.dataset.probe = "hard"; el.dataset.key = `d${i}`;
+  });
+}
+function snap(){
+  const m = {};
+  document.querySelectorAll("[data-probe]").forEach(el => {
+    const r = el.getBoundingClientRect();
+    m[el.dataset.key] = { k: el.dataset.probe, x: r.left, w: r.width, y: r.top + window.scrollY };
+  });
+  return m;
+}
+function measureDrift(a, b){
+  let hx=0, hw=0, hy=0, sx=0, n=0;
+  for (const k in a){
+    if (!(k in b)) continue;
+    const p = a[k], q = b[k];
+    if (p.k === "hard"){
+      hx = Math.max(hx, Math.abs(q.x - p.x));
+      hw = Math.max(hw, Math.abs(q.w - p.w));
+      hy = Math.max(hy, Math.abs(q.y - p.y));
+      n++;
+    } else {
+      sx = Math.max(sx, Math.abs(q.x - p.x));
+    }
+  }
+  return { hx, hw, hy, sx, n };
+}
+
+/* ---- applying the response --------------------------------------------- */
+function setVote(i, on){
+  const el = document.querySelector(`[data-vote="${i}"]`);
+  if (!el) return;
+  el.classList.toggle("voted", on);
+  el.setAttribute("aria-pressed", String(on));
+}
+function setBm(i, on){
+  const el = document.querySelector(`[data-bm="${i}"]`);
+  if (!el) return;
+  el.classList.toggle("saved", on);
+  el.setAttribute("aria-pressed", String(on));
+  const lab = el.querySelector(".bl");
+  if (lab) lab.textContent = on ? "Saved" : "Save";
+}
+function finalState(){
+  const p = params();
+  if (p.page === "detail") return { voted: [0], bookmarked: [0] };
+  return { voted: VIEWER.voted, bookmarked: VIEWER.bookmarked };
+}
+function applyResponse(){
+  const f = finalState();
+  const vSet = new Set(f.voted), bSet = new Set(f.bookmarked);
+  const n = params().page === "detail" ? 1 : PAGE_SIZE;
+  OVERWRITTEN = 0;
+  for (let i = 0; i < n; i++){
+    const v = document.querySelector(`[data-vote="${i}"]`);
+    const b = document.querySelector(`[data-bm="${i}"]`);
+    if (v && TOUCHED.has("v"+i) && v.classList.contains("voted") !== vSet.has(i)) OVERWRITTEN++;
+    if (b && TOUCHED.has("b"+i) && b.classList.contains("saved") !== bSet.has(i)) OVERWRITTEN++;
+    setVote(i, vSet.has(i));
+    setBm(i, bSet.has(i));
+  }
+  document.getElementById("auth").innerHTML = authHTML(true);
+}
+
+/* ---- the run loop ------------------------------------------------------- */
+function run(){
+  const p = params();
+  const id = ++RUN;
+  cancelAnimationFrame(RAF);
+  PENDING = false; LANDED = -1; DRIFT = null; OVERWRITTEN = 0; TOUCHED = new Set();
+  UID = 0;
+
+  if (p.theme) document.documentElement.setAttribute("data-theme", p.theme);
+  document.body.className =
+    `v-${p.variant}` + (p.signed === "in" ? " signedin" : "");
+
+  /* 1. paint the cached artefact — the signed-out render, for everybody */
+  document.getElementById("note").innerHTML = noteHTML(p);
+  document.getElementById("count").textContent = p.page === "detail"
+    ? "one programme | one action cluster | above the fold"
+    : `${PAGE_SIZE} of ${DATA.length} programmes | page 1 of 2 | newest first`;
+  document.getElementById("root").innerHTML = p.page === "detail" ? DetailPage() : ShelfPage();
+  tagProbes();
+
+  /* 2. the pre-response state a signed-in browser can reach with zero requests */
+  const headerNow = p.signed === "in" && p.variant === "header";
+  document.getElementById("auth").innerHTML = authHTML(headerNow);
+  if (p.signed === "in") document.body.classList.add("pending");
+
+  bar();
+
+  /* 3. baseline the geometry on what is first painted, not on the raw HTML —
+     so the `hidden` class and the header claim are already in when we measure.
+     Taken synchronously: getBoundingClientRect forces layout, and at
+     ?viewer=0 a rAF would run after the response had already landed. */
+  BEFORE = snap();
+
+  if (p.signed === "out"){ readout(); return; }
+
+  /* 4. the request. Even at 0 ms it can only land after paint. */
+  PENDING = true;
+  T0 = performance.now();
+  RAF = requestAnimationFrame(tick);
+  setTimeout(() => {
+    if (id !== RUN) return;
+    LANDED = performance.now() - T0;
+    PENDING = false;
+    document.body.classList.remove("pending");
+    applyResponse();
+    requestAnimationFrame(() => {
+      if (id !== RUN) return;
+      DRIFT = measureDrift(BEFORE, snap());
+      readout();
+    });
+    readout();
+  }, p.delay);
+  readout();
+}
+function tick(){ if (!PENDING) return; readout(); RAF = requestAnimationFrame(tick); }
+
+/* ---- the bar ------------------------------------------------------------ */
+function btn(attr, val, label, on, title){
+  return `<button data-${attr}="${val}" class="${on?"on":""}"${title?` title="${title}"`:""}>${label}</button>`;
+}
+function bar(){
+  const p = params();
+  document.getElementById("bar").innerHTML = `
+    <div class="grp"><span class="lab">viewer</span>
+      ${btn("signed","out","signed out", p.signed==="out","the cached artefact — makes no request")}
+      ${btn("signed","in","signed in",  p.signed==="in","fires GET /api/viewer after paint")}</div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lab">variant</span>
+      ${btn("variant","plain","plain",  p.variant==="plain")}
+      ${btn("variant","hidden","hidden",p.variant==="hidden")}
+      ${btn("variant","header","header-only", p.variant==="header")}</div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lab">delay</span>
+      ${DELAYS.map(([ms,why]) => btn("delay", ms, ms, p.delay===ms, why)).join("")}
+      <input type="range" min="0" max="4000" step="50" value="${p.delay}" id="slider">
+      <span class="ms">${p.delay} ms</span></div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lab">page</span>
+      ${btn("pg","shelf","shelf", p.page==="shelf","25 control clusters down a column")}
+      ${btn("pg","detail","detail", p.page==="detail","one control cluster above the fold")}</div>
+    <span class="sep"></span>
+    <button class="rerun" id="rerun">↻ re-run<kbd>R</kbd></button>
+    ${btn("th", document.documentElement.getAttribute("data-theme")==="dark" ? "light":"dark", "◐", false, "light / dark")}
+    <div id="readout"></div>`;
+
+  document.querySelectorAll("#bar [data-signed]").forEach(b => b.onclick = () => setParam("signed", b.dataset.signed));
+  document.querySelectorAll("#bar [data-variant]").forEach(b => b.onclick = () => setParam("variant", b.dataset.variant));
+  document.querySelectorAll("#bar [data-delay]").forEach(b => b.onclick = () => setParam("viewer", b.dataset.delay));
+  document.querySelectorAll("#bar [data-pg]").forEach(b => b.onclick = () => setParam("page", b.dataset.pg));
+  document.querySelector("#bar [data-th]").onclick = e => setParam("theme", e.currentTarget.dataset.th);
+  document.getElementById("rerun").onclick = () => run();
+  const s = document.getElementById("slider");
+  s.oninput  = () => { document.querySelector("#bar .ms").textContent = s.value + " ms"; };
+  s.onchange = () => setParam("viewer", s.value);
+  readout();
+}
+
+function readout(){
+  const el = document.getElementById("readout");
+  if (!el) return;
+  const p = params();
+  let l1, l2;
+  if (p.signed === "out"){
+    l1 = `signed out | zero requests`;
+    l2 = `nothing arrives late, because nothing is per-viewer`;
+  } else if (PENDING){
+    const e = Math.round(performance.now() - T0);
+    l1 = `waiting on /api/viewer… <b>${e} ms</b>`;
+    l2 = `the controls on screen are the signed-out render`;
+  } else if (LANDED >= 0){
+    l1 = `landed at <b>+${Math.round(LANDED)} ms</b>`;
+    if (DRIFT){
+      const bad = DRIFT.hx > 0.5 || DRIFT.hw > 0.5 || DRIFT.hy > 0.5;
+      l2 = `<span class="${bad?"bad":"ok"}">geometry ${bad?"MOVED":"held"}</span>: `
+         + `Δx ${DRIFT.hx.toFixed(2)} | Δw ${DRIFT.hw.toFixed(2)} | Δy ${DRIFT.hy.toFixed(2)} px `
+         + `over ${DRIFT.n} probes | header label Δx ${DRIFT.sx.toFixed(1)} px (035 §4.4)`;
+    } else l2 = `measuring…`;
+    if (TOUCHED.size) l1 += ` <span class="warnc">| ⚠ ${TOUCHED.size} click${TOUCHED.size===1?"":"s"}`
+      + ` during the wait (${OVERWRITTEN} snapped back)</span>`;
+  } else {
+    l1 = `ready`; l2 = ``;
+  }
+  const l3 = (!PENDING && LANDED >= 0 && TOUCHED.size)
+    ? `<div class="l2 warnc">the response is a snapshot taken before those clicks — the screen and the
+       server now disagree on ${TOUCHED.size} control${TOUCHED.size===1?"":"s"}</div>` : ``;
+  el.innerHTML = `<div class="l1">${l1}</div><div class="l2">${l2}</div>${l3}`;
+}
+
+/* ---- clicking during the wait: the response wins, and that is visible --- */
+document.addEventListener("click", e => {
+  const v = e.target.closest("[data-vote]"), b = e.target.closest("[data-bm]");
+  if (v){
+    const i = v.dataset.vote;
+    if (PENDING) TOUCHED.add("v"+i);
+    setVote(i, !v.classList.contains("voted"));
+  }
+  if (b){
+    const i = b.dataset.bm;
+    if (PENDING) TOUCHED.add("b"+i);
+    setBm(i, !b.classList.contains("saved"));
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "r" || e.key === "R"){ if (!e.metaKey && !e.ctrlKey) run(); }
+});
+
+run();
+</script>

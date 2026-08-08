@@ -1,0 +1,427 @@
+{
+  "started": "2026-08-08T07:50:14.335Z",
+  "caps": [
+    512,
+    256,
+    128,
+    64,
+    32,
+    16,
+    8
+  ],
+  "engines": {
+    "webkit": {
+      "knob": "JSC_gcMaxHeapSize",
+      "workloads": {
+        "scan": {
+          "8": {
+            "verdict": "ok",
+            "wall_ms": 545.46,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "16": {
+            "verdict": "ok",
+            "wall_ms": 525.1,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "32": {
+            "verdict": "ok",
+            "wall_ms": 538.6400000000001,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "64": {
+            "verdict": "ok",
+            "wall_ms": 548.44,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "128": {
+            "verdict": "ok",
+            "wall_ms": 521.5600000000001,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "256": {
+            "verdict": "ok",
+            "wall_ms": 539.62,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 522.24,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7383836,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        },
+        "parse": {
+          "8": {
+            "verdict": "ok",
+            "wall_ms": 365.03999999999996,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "16": {
+            "verdict": "ok",
+            "wall_ms": 333.36,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "32": {
+            "verdict": "ok",
+            "wall_ms": 314.02,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "64": {
+            "verdict": "ok",
+            "wall_ms": 355.9599999999999,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "128": {
+            "verdict": "ok",
+            "wall_ms": 364.5799999999999,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "256": {
+            "verdict": "ok",
+            "wall_ms": 272.08,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 327.74,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        }
+      }
+    },
+    "firefox": {
+      "knob": "javascript.options.mem.max",
+      "workloads": {
+        "scan": {
+          "8": {
+            "verdict": "ok",
+            "wall_ms": 666.4000000000001,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "16": {
+            "verdict": "ok",
+            "wall_ms": 659.0799999999999,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "32": {
+            "verdict": "ok",
+            "wall_ms": 687.26,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "64": {
+            "verdict": "ok",
+            "wall_ms": 701.2,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "128": {
+            "verdict": "ok",
+            "wall_ms": 678.36,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "256": {
+            "verdict": "ok",
+            "wall_ms": 734.06,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 693.6200000000001,
+            "peak_heap": null,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7192108,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        },
+        "parse": {
+          "8": {
+            "verdict": "ok",
+            "wall_ms": 801.06,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "16": {
+            "verdict": "ok",
+            "wall_ms": 768.54,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "32": {
+            "verdict": "ok",
+            "wall_ms": 794.6200000000001,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "64": {
+            "verdict": "ok",
+            "wall_ms": 768.8399999999999,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "128": {
+            "verdict": "ok",
+            "wall_ms": 853.72,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "256": {
+            "verdict": "ok",
+            "wall_ms": 787.56,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 818.0799999999999,
+            "peak_heap": null,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        }
+      }
+    },
+    "chromium": {
+      "knob": "--js-flags=--max-old-space-size",
+      "workloads": {
+        "scan": {
+          "8": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "16": {
+            "verdict": "ok",
+            "wall_ms": 585.5450000017881,
+            "peak_heap": 80576267,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "32": {
+            "verdict": "ok",
+            "wall_ms": 583.0049999989569,
+            "peak_heap": 88982019,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "64": {
+            "verdict": "ok",
+            "wall_ms": 567.730000000447,
+            "peak_heap": 84779003,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "128": {
+            "verdict": "ok",
+            "wall_ms": 571.320000000298,
+            "peak_heap": 126202045,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "256": {
+            "verdict": "ok",
+            "wall_ms": 566.1999999992549,
+            "peak_heap": 199136249,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 575.660000000149,
+            "peak_heap": 159817513,
+            "sha256": "c4dbce1390fc01f14a502db7a84cfcff7a745ecaa38dfc7cf04d0803c708012e",
+            "gzip_bytes": 7155680,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        },
+        "parse": {
+          "8": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "16": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "32": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "64": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "128": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "256": {
+            "verdict": "died",
+            "error": "Error: page.evaluate: Target crashed ",
+            "catchable": false
+          },
+          "512": {
+            "verdict": "ok",
+            "wall_ms": 439.8149999976158,
+            "peak_heap": 407095812,
+            "sha256": null,
+            "gzip_bytes": null,
+            "crashed": false,
+            "catchable": false,
+            "error": null
+          }
+        }
+      }
+    }
+  },
+  "finished": "2026-08-08T07:51:23.200Z"
+}

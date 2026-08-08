@@ -1,0 +1,515 @@
+<meta charset="utf-8">
+<title>xer-hero — storefront row list prototype</title>
+<style>
+/* ---------------------------------------------------------------------------
+   PROTOTYPE — throwaway. Ticket 007, "The storefront card and browse grid".
+   Round 3: the row list won, with a local-axis window curve and a fixed
+   10-slot activity track. ?state=full|one|empty and ?fields=1 (provenance).
+   Everything rendered comes from the Postgres programme+revision row or its
+   `card` JSONB — no blob reads. Not production code.
+--------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --plane:      #f9f9f7;
+  --surface:    #fcfcfb;
+  --ink:        #0b0b0b;
+  --ink-2:      #52514e;
+  --muted:      #898781;
+  --grid:       #e1e0d9;
+  --axis:       #c3c2b7;
+  --hair:       rgba(11,11,11,0.10);
+  --series:     #2a78d6;
+  --series-100: #cde2fb;
+  --series-250: #86b6ef;
+  --neg:        #d03b3b;
+  --slack:      #eda100;
+  --good:       #0ca30c;
+  --warn:       #fab219;
+  --chip:       rgba(11,11,11,0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane:      #0d0d0d;
+    --surface:    #1a1a19;
+    --ink:        #ffffff;
+    --ink-2:      #c3c2b7;
+    --muted:      #898781;
+    --grid:       #2c2c2a;
+    --axis:       #383835;
+    --hair:       rgba(255,255,255,0.10);
+    --series:     #3987e5;
+    --series-100: #184f95;
+    --series-250: #256abf;
+    --neg:        #d03b3b;
+    --slack:      #c98500;
+    --good:       #0ca30c;
+    --warn:       #fab219;
+    --chip:       rgba(255,255,255,0.07);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane:      #0d0d0d;
+  --surface:    #1a1a19;
+  --ink:        #ffffff;
+  --ink-2:      #c3c2b7;
+  --muted:      #898781;
+  --grid:       #2c2c2a;
+  --axis:       #383835;
+  --hair:       rgba(255,255,255,0.10);
+  --series:     #3987e5;
+  --series-100: #184f95;
+  --series-250: #256abf;
+  --neg:        #d03b3b;
+  --slack:      #c98500;
+  --good:       #0ca30c;
+  --warn:       #fab219;
+  --chip:       rgba(255,255,255,0.07);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-bottom: 96px;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 24px 20px 0; }
+
+header.site {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding-bottom: 14px; border-bottom: 1px solid var(--hair); margin-bottom: 18px;
+}
+header.site h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
+header.site .tag { color: var(--muted); font-size: 12px; }
+header.site .spacer { flex: 1; }
+.facets { display: flex; gap: 6px; flex-wrap: wrap; }
+.facet {
+  font-size: 12px; padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--hair); color: var(--ink-2); background: var(--surface);
+}
+.facet.on { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.count { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+
+/* ---- atoms ------------------------------------------------------------- */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 2px 7px; border-radius: 4px;
+  background: var(--chip); color: var(--ink-2); white-space: nowrap;
+}
+.badge.ghost { background: none; border: 1px solid var(--hair); color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dcma { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); }
+.cells { display: flex; gap: 2px; }
+.cell { width: 6px; height: 11px; border-radius: 1px; background: var(--grid); }
+.cell.pass { background: var(--good); }
+.cell.fail { background: var(--neg); }
+.cell.skip { background: none; border: 1px dashed var(--axis); }
+.cap { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ---- list shell -------------------------------------------------------- */
+.list { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; }
+.row {
+  display: grid; gap: 12px; align-items: center;
+  grid-template-columns: 128px minmax(150px,1fr) 84px 58px 88px 40px 108px 262px 88px 112px 52px;
+  padding: 10px 14px; border-bottom: 1px solid var(--hair);
+}
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--chip); }
+.row.head { padding: 6px 14px; background: var(--plane); position: sticky; top: 0; z-index: 3; }
+.row.head > span, .row.head > div { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.title { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+
+/* ---- fixed-slot sub-grids — nothing in a row is allowed to flow --------- */
+.floatgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 4px; }
+.floatgrid span {
+  font-size: 10.5px; font-variant-numeric: tabular-nums; text-align: center;
+  color: var(--muted); text-transform: none; letter-spacing: 0;
+}
+.floatgrid span.z { opacity: .35; }
+.row.head .floatgrid span { font-size: 10px; color: var(--muted); }
+
+/* upvotes — a votable pill plus a magnitude bar, both in fixed positions */
+.vote {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  border: 1px solid var(--hair); background: none; color: var(--ink-2);
+  border-radius: 999px; padding: 3px 9px 3px 7px; font: inherit; font-size: 12px;
+}
+.vote:hover { border-color: var(--series); color: var(--series); }
+.vote:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.vote.voted { border-color: var(--series); color: var(--series); background: var(--series-100); }
+.vote .caret { font-size: 9px; line-height: 1; }
+.vote .n { font-variant-numeric: tabular-nums; font-weight: 600; }
+.votebar { position: relative; height: 4px; background: var(--grid); border-radius: 2px; margin-top: 4px; }
+.votebar i { position: absolute; inset: 0 auto 0 0; background: var(--series-250); border-radius: 2px; }
+
+/* progress bar */
+.prog { display: block; }
+.prog .bar { position: relative; height: 7px; background: var(--grid); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.prog .bar i { position: absolute; inset: 0 auto 0 0; background: var(--series); border-radius: 4px; }
+
+/* ---- activity magnitude: fixed 10-slot track, one slot per 1,000 -------- */
+.blocks { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 4px; }
+.blocks i { height: 10px; border-radius: 1px; background: var(--grid); position: relative; overflow: hidden; }
+.blocks i b { position: absolute; inset: 0 auto 0 0; background: var(--series-250); display: block; }
+.blocks i.full b { width: 100%; }
+.blocks.over i b { background: var(--series); }
+
+/* ---- states ------------------------------------------------------------ */
+.empty { background: var(--surface); border: 1px dashed var(--axis); border-radius: 10px; padding: 56px 24px; text-align: center; }
+.empty h2 { margin: 0 0 6px; font-size: 16px; }
+.empty p { margin: 0 auto 18px; max-width: 460px; color: var(--ink-2); font-size: 13px; }
+.empty .cta { display: inline-block; padding: 8px 16px; border-radius: 7px; background: var(--ink); color: var(--surface); font-size: 13px; font-weight: 500; }
+.empty .alt { margin-top: 14px; font-size: 12px; color: var(--muted); }
+.single-note { font-size: 12px; color: var(--ink-2); background: var(--chip); padding: 8px 12px; border-radius: 7px; margin-bottom: 12px; }
+
+/* ---- provenance overlay ------------------------------------------------ */
+body.fields [data-src] { outline: 1px dashed transparent; }
+body.fields [data-src="col"]  { outline-color: var(--series); }
+body.fields [data-src="card"] { outline-color: var(--slack); }
+body.fields [data-src="agg"]  { outline-color: var(--neg); }
+.legend-src { display: flex; gap: 14px; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.legend-src i { display: inline-block; width: 10px; height: 10px; border: 1px dashed; margin-right: 4px; vertical-align: -1px; }
+
+/* ---- switcher ---------------------------------------------------------- */
+#switcher {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 50;
+  background: var(--ink); color: var(--plane);
+  border-radius: 999px; padding: 6px 8px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.28); font-size: 12.5px;
+}
+#switcher button { font: inherit; cursor: pointer; border: 0; border-radius: 999px; background: transparent; color: inherit; padding: 4px 9px; }
+#switcher button:hover { background: rgba(128,128,128,.35); }
+#switcher button:focus-visible { outline: 2px solid var(--series-250); outline-offset: 1px; }
+#switcher .lab { padding: 0 8px; white-space: nowrap; font-weight: 500; }
+#switcher .sep { width: 1px; align-self: stretch; background: rgba(128,128,128,.4); margin: 2px 4px; }
+#switcher .on { background: rgba(128,128,128,.45); }
+</style>
+
+<div class="wrap">
+  <header class="site">
+    <h1>xer-hero</h1>
+    <span class="tag">prototype | ticket 007 | fake data</span>
+    <span class="spacer"></span>
+    <div class="facets">
+      <span class="facet on">All sectors</span><span class="facet">Rail</span>
+      <span class="facet">Highways</span><span class="facet">Water</span>
+      <span class="facet">Energy</span><span class="facet">Sort: newest</span>
+    </div>
+  </header>
+  <div id="srclegend" class="legend-src" hidden>
+    <span><i style="border-color:var(--series)"></i>typed column</span>
+    <span><i style="border-color:var(--slack)"></i><code>card</code> JSONB</span>
+    <span><i style="border-color:var(--neg)"></i>needs a counter that does not exist yet</span>
+  </div>
+  <p class="count" id="count"></p>
+  <div id="root"></div>
+</div>
+
+<div id="switcher"></div>
+
+<script>
+/* ===========================================================================
+   Fake corpus — Postgres columns + `card` JSONB only.
+   =========================================================================== */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd = mulberry32(20260807);
+const pick = a => a[Math.floor(rnd()*a.length)];
+const ri = (lo,hi) => lo + Math.floor(rnd()*(hi-lo+1));
+
+const HANDLES = ["planner_dave","tender_lab","ravi_pm","northline","cpm_kate","gridworks","aqua_planner","tunnelrat","p6_owl","bex_schedules"];
+const NOUNS = [
+  ["Twin-track electrification","Rail"],["Station remodelling — Stage 3","Rail"],["Depot resignalling","Rail"],
+  ["Junction 21A improvement","Highways"],["Smart motorway retrofit","Highways"],["Bypass — earthworks and structures","Highways"],
+  ["Reservoir spillway refurbishment","Water"],["Trunk main replacement","Water"],["Treatment works upgrade","Water"],
+  ["Grid connection — 400kV","Energy"],["Onshore substation","Energy"],["Battery storage compound","Energy"],
+  ["Taxiway resurfacing","Aviation"],["Terminal pier extension","Aviation"],
+  ["Cross-passage construction","Tunnelling"],["TBM drive — south","Tunnelling"],
+  ["Hospital ward block fit-out","Buildings"],["Data centre shell and core","Buildings"],
+  ["Quay wall reconstruction","Marine"],["Lock gate replacement","Marine"]
+];
+function makeSCurve(n){
+  const out = [];
+  for (let i=0;i<n;i++){
+    const x = i/(n-1);
+    const s = 1/(1+Math.exp(-9*(x-0.5)));
+    out.push(Math.round(Math.max(0,Math.min(1, s + (rnd()-0.5)*0.02))*1000)/1000);
+  }
+  out[0] = 0; out[n-1] = 1;
+  return out;
+}
+function makeOne(i){
+  const [name, sector] = NOUNS[i % NOUNS.length];
+  const suffix = i >= NOUNS.length ? ["— Option 2","— rev C","(alt logic)","— Phase 2"][i % 4] : "";
+  const isTender = rnd() < 0.35;              // drives the data only — never shown
+  const pct = isTender ? 0 : Math.round(rnd()*92);
+  const upvotes = rnd() < 0.2 ? 0 : Math.round(Math.pow(rnd(), 2.2) * 340);
+  const acts = ri(280, 12400);
+  const start = new Date(Date.UTC(ri(2017,2024), ri(0,11), 1));
+  const months = ri(14, 78);
+  const finish = new Date(start); finish.setUTCMonth(finish.getUTCMonth()+months);
+  const dataDate = new Date(start); dataDate.setUTCMonth(dataDate.getUTCMonth()+Math.round(months*pct/100));
+  const applicable = isTender ? 10 : (rnd()<0.5 ? 10 : 14);
+  const passed = ri(Math.max(2, applicable-7), applicable);
+  const negPct = isTender ? 0 : Math.round(rnd()*rnd()*70);
+  const highPct = isTender ? Math.round(20+rnd()*55) : Math.round(rnd()*25);
+  const fails = [];
+  if (negPct) fails.push("negative float");
+  if (highPct > 5) fails.push("high float");
+  if (rnd()<0.4) fails.push("leads");
+  return {
+    title: (name + " " + suffix).trim(),
+    sector: rnd() < 0.12 ? null : sector,
+    parent: rnd() < 0.3 ? pick(NOUNS)[0] : null,
+    rev_no: isTender ? ri(1,3) : ri(1,26),
+    uploaded_days_ago: ri(0, 420),
+    uploader: pick(HANDLES),
+    p6_version: pick(["6.0","8.3","8.3","15.2","19.12","23.12"]),
+    activity_count: acts,
+    start, finish, data_date: isTender ? null : dataDate,
+    pct_complete: pct,
+    checks_passed: passed,
+    checks_applicable: applicable,
+    upvotes,
+    voted_by_me: rnd() < 0.15,
+    card: {
+      s_curve: makeSCurve(16),
+      float_mix: { neg: negPct, ok: 100-negPct-highPct, high: highPct },
+      milestone_count: ri(4,260),
+      relationship_count: Math.round(acts*(1.4+rnd()*0.6)),
+      wbs_depth: rnd()<0.12 ? 1 : ri(2,6),
+      failed_checks: fails.slice(0,3),
+      fork_count: rnd()<0.4 ? ri(1,9) : 0,
+      revision_count: isTender ? ri(1,3) : ri(1,26),
+      issues_count: rnd()<0.18 ? ri(1,3) : 0
+    }
+  };
+}
+const DATA = Array.from({length: 40}, (_,i) => makeOne(i));
+
+/* the two real fixture shapes, pinned to the top so degenerate cases show */
+Object.assign(DATA[0], {
+  title: "Station remodelling — Stage 3", sector: "Rail", pct_complete: 41,
+  activity_count: 1751, rev_no: 23, p6_version: "6.0",
+  checks_passed: 6, checks_applicable: 10, upvotes: 214, voted_by_me: true
+});
+Object.assign(DATA[0].card, {
+  float_mix: { neg: 69, ok: 27, high: 4 }, failed_checks: ["negative float","high duration"],
+  wbs_depth: 4, revision_count: 23, fork_count: 3
+});
+Object.assign(DATA[1], {
+  title: "Quay wall reconstruction — Option 2", sector: "Marine", pct_complete: 0,
+  activity_count: 3344, rev_no: 1, p6_version: "8.3",
+  checks_passed: 5, checks_applicable: 10, data_date: null, parent: null,
+  upvotes: 37, voted_by_me: false
+});
+Object.assign(DATA[1].card, {
+  float_mix: { neg: 0, ok: 24, high: 76 }, failed_checks: ["leads","lags","FS < 90%"],
+  wbs_depth: 1, revision_count: 1, fork_count: 3
+});
+DATA[2].sector = null;                                                  // unsectored
+DATA[3].card.issues_count = 2;                                          // partially analysed
+DATA[4].start = null; DATA[4].finish = null; DATA[4].data_date = null;   // dateless
+DATA[5].activity_count = 310;                                           // tiny programme
+
+const MAXVOTES = Math.max(...DATA.map(p => p.upvotes));
+
+/* ===========================================================================
+   Helpers
+   =========================================================================== */
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtNum = n => n.toLocaleString("en-GB");
+const fmtMY = d => d ? MON[d.getUTCMonth()] + " " + String(d.getUTCFullYear()).slice(2) : "—";
+const ago = d => d===0 ? "today" : d<30 ? d+"d" : d<365 ? Math.round(d/30)+"mo" : Math.round(d/365)+"y";
+const src = s => ` data-src="${s}" `;
+let UID = 0;
+
+/* ---- float distribution sliver ----------------------------------------- */
+function sliver(p, h=30){
+  const f = p.card.float_mix;
+  const seg = (pct,col,label) => pct<=0 ? "" :
+    `<div title="${label}: ${pct}%" style="flex:${pct} 0 0;background:${col};height:${h}px;border-radius:2px"></div>`;
+  return `<div${src("card")} style="display:flex;gap:2px" aria-label="float distribution">
+    ${seg(f.neg,"var(--neg)","negative float")}
+    ${seg(f.ok,"var(--series)","0–44 days float")}
+    ${seg(f.high,"var(--slack)","over 44 days float")}</div>`;
+}
+/* three fixed slots, always rendered, so numbers line up down the column */
+function floatCaption(p){
+  const f = p.card.float_mix;
+  const slot = (v, col) => `<span class="${v?"":"z"}"${v&&col?` style="color:${col}"`:""}>${v}%</span>`;
+  return `<div class="floatgrid">${slot(f.neg,"var(--neg)")}${slot(f.ok,"")}${slot(f.high,"")}</div>`;
+}
+
+/* ---- DCMA cells --------------------------------------------------------- */
+function dcmaChip(p){
+  let cells = "";
+  for (let i=0;i<14;i++){
+    cells += i >= p.checks_applicable ? `<span class="cell skip"></span>`
+           : i <  p.checks_passed     ? `<span class="cell pass"></span>`
+           :                            `<span class="cell fail"></span>`;
+  }
+  return `<span class="dcma"${src("col")}
+    title="${p.checks_passed} of ${p.checks_applicable} DCMA checks passed; ${14-p.checks_applicable} not applicable">
+    <span class="cells">${cells}</span>
+    <span class="num" style="font-weight:600">${p.checks_passed}/${p.checks_applicable}</span></span>`;
+}
+
+/* ---- the blended cell: window + progress + S-curve, local axis ---------- */
+function curveLocal(p, w=248, h=34){
+  if (!p.start || !p.finish) return `<div><span class="cap">no start or finish date</span></div>`;
+  const pts = p.card.s_curve, n = pts.length, pad = 2;
+  const iw = w - pad*2, ih = h - pad*2 - 1;
+  const X = i => pad + (i/(n-1))*iw, Y = v => pad + ih - v*ih;
+  const d = pts.map((v,i) => `${i?"L":"M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  const cut = pad + (p.pct_complete/100)*iw;
+  const uid = "clip" + (++UID);
+  return `<div${src("card")}>
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"
+      role="img" aria-label="cumulative planned finishes; ${p.pct_complete}% complete">
+      <defs><clipPath id="${uid}"><rect x="0" y="0" width="${cut.toFixed(1)}" height="${h}"/></clipPath></defs>
+      <line x1="0" y1="${pad+ih}" x2="${w}" y2="${pad+ih}" stroke="var(--grid)" stroke-width="1"/>
+      <path d="${d}L${X(n-1).toFixed(1)},${pad+ih}L${X(0)},${pad+ih}Z" fill="var(--series)" fill-opacity="0.10"/>
+      <path d="${d}L${X(n-1).toFixed(1)},${pad+ih}L${X(0)},${pad+ih}Z" fill="var(--series)" fill-opacity="0.24" clip-path="url(#${uid})"/>
+      <path d="${d}" fill="none" stroke="var(--series)" stroke-width="2"
+            stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      ${p.data_date ? `<line x1="${cut.toFixed(1)}" y1="0" x2="${cut.toFixed(1)}" y2="${pad+ih}"
+            stroke="var(--ink)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          <polygon points="${(cut-3.5).toFixed(1)},0 ${(cut+3.5).toFixed(1)},0 ${cut.toFixed(1)},4.5"
+            fill="var(--ink)"/>` : ``}
+    </svg>
+    <div class="cap" style="display:grid;grid-template-columns:1fr 1fr 1fr">
+      <span style="text-align:left">${fmtMY(p.start)}</span>
+      <span style="text-align:center;color:var(--ink-2)">${p.data_date ? "▼ data date " + fmtMY(p.data_date) : "no data date"}</span>
+      <span style="text-align:right">${fmtMY(p.finish)}</span>
+    </div></div>`;
+}
+
+/* ---- activity magnitude: fixed 10-slot track --------------------------- */
+const SLOTS = 10, PER_SLOT = 1000;
+function actBlocks(p){
+  const n = p.activity_count, over = n > SLOTS*PER_SLOT;
+  const filled = Math.min(SLOTS, n/PER_SLOT);
+  let b = "";
+  for (let i=0;i<SLOTS;i++){
+    const f = Math.max(0, Math.min(1, filled - i));
+    b += f >= 1 ? `<i class="full"><b></b></i>`
+       : f > 0  ? `<i><b style="width:${Math.max(20, f*100).toFixed(0)}%"></b></i>`
+       :          `<i></i>`;
+  }
+  return `<div${src("col")}>
+    <div class="num" style="font-size:13px">${fmtNum(n)}${over?" +":""}</div>
+    <div class="blocks${over?" over":""}" title="${fmtNum(n)} activities | one slot per 1,000, ten slots">${b}</div></div>`;
+}
+
+/* ---- remaining cells ---------------------------------------------------- */
+function sectorCell(p){
+  return `<div>${p.sector ? `<span class="badge"${src("col")}>${p.sector}</span>`
+                          : `<span class="badge ghost"${src("col")}>unsectored</span>`}</div>`;
+}
+function p6Cell(p){
+  return `<div class="num"${src("col")} style="font-size:12.5px">${p.p6_version}</div>`;
+}
+/* upvotes — needs an upvote total per programme, which does not exist yet */
+function voteCell(p){
+  const w = MAXVOTES ? Math.sqrt(p.upvotes)/Math.sqrt(MAXVOTES)*100 : 0;
+  return `<div${src("agg")}>
+    <button class="vote${p.voted_by_me?" voted":""}" type="button"
+      title="${p.upvotes} upvote${p.upvotes===1?"":"s"}${p.voted_by_me?" | you upvoted this":""}"
+      aria-pressed="${p.voted_by_me}">
+      <span class="caret">▲</span><span class="n">${fmtNum(p.upvotes)}</span></button>
+    <div class="votebar"><i style="width:${w.toFixed(1)}%"></i></div></div>`;
+}
+function revCell(p){
+  return `<div class="num"${src("card")} style="font-size:12.5px;text-align:right"
+    title="revision ${p.rev_no} of this programme">r${p.rev_no}</div>`;
+}
+function progressCell(p){
+  return `<div class="prog"${src("col")} title="${p.pct_complete}% of activities complete">
+    <div class="num" style="font-size:12.5px">${p.pct_complete}%</div>
+    <div class="bar"><i style="width:${p.pct_complete}%"></i></div></div>`;
+}
+function titleCell(p){
+  const flags = [];
+  if (p.card.issues_count) flags.push(`<span class="badge"${src("card")} style="color:var(--warn)">⚠ partial</span>`);
+  if (p.card.wbs_depth === 1) flags.push(`<span class="badge"${src("card")}>no WBS</span>`);
+  return `<div>
+    <div class="title"${src("col")}>${p.title} ${flags.join("")}</div>
+    <div class="sub"><span${src("col")}>${p.uploader}</span>${p.parent ? ` | forked from ${p.parent}` : ``}</div></div>`;
+}
+function floatCell(p){ return `<div>${sliver(p)}${floatCaption(p)}</div>`; }
+function agoCell(p){ return `<div class="num cap" style="text-align:right"${src("col")}>${ago(p.uploaded_days_ago)}</div>`; }
+
+/* ===========================================================================
+   The list
+   =========================================================================== */
+const HEAD_FLOAT = `<div><span>float</span>
+  <div class="floatgrid"><span>neg</span><span>0–44d</span><span>&gt;44d</span></div></div>`;
+function RowList(rows){
+  return `<div class="list">
+    <div class="row head">${HEAD_FLOAT}<span>programme</span><span>sector</span><span>P6</span>
+      <span>upvotes</span><span style="text-align:right">rev</span><span>activities</span>
+      <span>window &amp; data date</span><span>complete</span><span>DCMA</span>
+      <span style="text-align:right">age</span></div>`
+    + rows.map(p => `<div class="row">
+        ${floatCell(p)}${titleCell(p)}${sectorCell(p)}${p6Cell(p)}${voteCell(p)}${revCell(p)}
+        ${actBlocks(p)}${curveLocal(p)}${progressCell(p)}<div>${dcmaChip(p)}</div>${agoCell(p)}</div>`).join("")
+    + `</div>`;
+}
+
+function EmptyState(){
+  return `<div class="empty">
+    <h2>Nothing on the shelf for “negative float | Marine | P6 19.12”</h2>
+    <p>Three filters are on. Marine has 2 programmes and neither is progressed —
+       negative float can only appear on a programme with progress.</p>
+    <span class="cta">Clear the progress filter</span>
+    <div class="alt">or <b>upload a programme</b> — it publishes under CC-BY 4.0 and appears here immediately.</div></div>`;
+}
+function singleNote(){
+  return `<div class="single-note">One result. <b>Quay wall reconstruction</b> has 3 forks —
+    <span style="text-decoration:underline">see the family</span>.</div>`;
+}
+
+/* ===========================================================================
+   Router + prototype chrome
+   =========================================================================== */
+const STATES = ["full","one","empty"];
+const params = () => {
+  const u = new URL(location.href);
+  return { state: u.searchParams.get("state") || "full", fields: u.searchParams.get("fields") === "1" };
+};
+function setParam(k,v){
+  const u = new URL(location.href);
+  u.searchParams.set(k,v);
+  history.replaceState(null,"",u);
+  render();
+}
+function render(){
+  const { state, fields } = params();
+  const rows = state === "one" ? DATA.slice(1,2) : state === "empty" ? [] : DATA;
+  UID = 0;
+
+  document.body.classList.toggle("fields", fields);
+  document.getElementById("srclegend").hidden = !fields;
+  document.getElementById("count").textContent =
+    state === "empty" ? "0 programmes" : `${rows.length} programme${rows.length===1?"":"s"} | 8 sectors | newest first`;
+
+  document.getElementById("root").innerHTML =
+    state === "empty" ? EmptyState() : (state === "one" ? singleNote() : "") + RowList(rows);
+
+  document.getElementById("switcher").innerHTML = `
+    <span class="lab">Row list — local window curve, 10-slot activity track</span>
+    <span class="sep"></span>
+    ${STATES.map(s => `<button data-state="${s}" class="${s===state?"on":""}">${s}</button>`).join("")}
+    <span class="sep"></span>
+    <button data-fields="${fields?0:1}" class="${fields?"on":""}">fields</button>`;
+
+  document.querySelectorAll("#switcher [data-state]").forEach(b => b.onclick = () => setParam("state", b.dataset.state));
+  document.querySelector("#switcher [data-fields]").onclick = e => setParam("fields", e.currentTarget.dataset.fields);
+}
+render();
+</script>

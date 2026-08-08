@@ -1,0 +1,9 @@
+{
+  "name": "scan-bench",
+  "private": true,
+  "type": "module",
+  "description": "Cross-engine measurement harness for the pre-upload scan (029). Not the product parser.",
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
