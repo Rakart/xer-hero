@@ -1,0 +1,21 @@
+# Local-only notes. These may reference commercially sensitive source data
+# (client names, contract numbers, file paths) and must never reach the public repo.
+*.local.md
+
+# Fixture .xer files. Real programmes are commercial data — keep them out of git.
+# Record measurements in docs/wayfinder/tickets/assets/xer-fixtures.local.md instead.
+docs/wayfinder/tickets/assets/xer-fixtures/
+*.xer
+
+# Synthetic fixtures contain no client data and ARE committed: they are the only
+# test corpus CI will ever have, because the real files above never can be.
+!fixtures/synthetic/**/*.xer
+
+# Perf fixtures are tens of MB and reproducible byte-for-byte from a seed —
+# regenerate with tools/fixture-gen/generate.mjs rather than committing them.
+fixtures/generated/
+
+node_modules/
+.env
+.env.local
+.DS_Store

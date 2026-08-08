@@ -1,0 +1,580 @@
+{
+  "fixture": "sparse-150",
+  "description": "150 activities — the sparse-data rendering case",
+  "landmine": "Not a parser assertion. This is the file that answers \"does the row, the S-curve and the float mix look broken when there is barely any data\".",
+  "speculative": false,
+  "p6_version": "8.3",
+  "generator": {
+    "seed": 327282674,
+    "options": {
+      "version": "8.3",
+      "activities": 150,
+      "wbsNodes": 14,
+      "progress": "partial",
+      "deadlineSlipDays": 10,
+      "codesPerActivity": 6,
+      "resources": 8,
+      "calendars": 2
+    }
+  },
+  "file": {
+    "bytes": 246648,
+    "sha256": "9ea7382e2cdd6c0424f913a4a3ac032e4f363cbe23d528a122b98df332b02bda"
+  },
+  "tables": [
+    {
+      "name": "CURRTYPE",
+      "rows": 1
+    },
+    {
+      "name": "OBS",
+      "rows": 1
+    },
+    {
+      "name": "POBS",
+      "rows": 2
+    },
+    {
+      "name": "UDFTYPE",
+      "rows": 5
+    },
+    {
+      "name": "UMEASURE",
+      "rows": 2
+    },
+    {
+      "name": "PROJECT",
+      "rows": 1
+    },
+    {
+      "name": "CALENDAR",
+      "rows": 2
+    },
+    {
+      "name": "SCHEDOPTIONS",
+      "rows": 1
+    },
+    {
+      "name": "PROJWBS",
+      "rows": 14
+    },
+    {
+      "name": "RSRC",
+      "rows": 8
+    },
+    {
+      "name": "ACTVTYPE",
+      "rows": 12
+    },
+    {
+      "name": "RSRCRATE",
+      "rows": 8
+    },
+    {
+      "name": "TASK",
+      "rows": 150
+    },
+    {
+      "name": "ACTVCODE",
+      "rows": 59
+    },
+    {
+      "name": "TASKPRED",
+      "rows": 255
+    },
+    {
+      "name": "TASKRSRC",
+      "rows": 404
+    },
+    {
+      "name": "TASKACTV",
+      "rows": 900
+    },
+    {
+      "name": "UDFVALUE",
+      "rows": 600
+    }
+  ],
+  "calendars": [
+    {
+      "clndr_id": 6600,
+      "clndr_name": "5 Day Working Week",
+      "clndr_type": "CA_Base",
+      "default_flag": "Y",
+      "declared": {
+        "day_hr_cnt": 8,
+        "week_hr_cnt": 40
+      },
+      "serialisation": {
+        "layout": "indented",
+        "shift_attrs": "start-first",
+        "pad_hours": true,
+        "view_node": true,
+        "has_0x7f": true
+      },
+      "week": [
+        {
+          "day": 1,
+          "name": "Sunday",
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "day": 2,
+          "name": "Monday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 3,
+          "name": "Tuesday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 4,
+          "name": "Wednesday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 5,
+          "name": "Thursday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 6,
+          "name": "Friday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 7,
+          "name": "Saturday",
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        }
+      ],
+      "hours_per_working_day": 8,
+      "working_days_per_week": 5,
+      "hours_per_week": 40,
+      "exceptions": [
+        {
+          "date": "2026-01-01",
+          "serial": 46023,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2026-12-25",
+          "serial": 46381,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2027-01-01",
+          "serial": 46388,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2027-12-25",
+          "serial": 46746,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2028-01-01",
+          "serial": 46753,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2028-12-25",
+          "serial": 47112,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2029-01-01",
+          "serial": 47119,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2029-12-25",
+          "serial": 47477,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2030-01-01",
+          "serial": 47484,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2030-12-25",
+          "serial": 47842,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2031-01-01",
+          "serial": 47849,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2031-12-25",
+          "serial": 48207,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2032-01-01",
+          "serial": 48214,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2032-12-25",
+          "serial": 48573,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2033-01-01",
+          "serial": 48580,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2033-12-25",
+          "serial": 48938,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2034-01-01",
+          "serial": 48945,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2034-12-25",
+          "serial": 49303,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2035-01-01",
+          "serial": 49310,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2035-12-25",
+          "serial": 49668,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2036-01-01",
+          "serial": 49675,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2036-12-25",
+          "serial": 50034,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2037-01-01",
+          "serial": 50041,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        },
+        {
+          "date": "2037-12-25",
+          "serial": 50399,
+          "works": false,
+          "shifts": [],
+          "hours": 0
+        }
+      ],
+      "same_meaning_as": null
+    },
+    {
+      "clndr_id": 6601,
+      "clndr_name": "7 Days Work / Week",
+      "clndr_type": "CA_Project",
+      "default_flag": "N",
+      "declared": {
+        "day_hr_cnt": 8,
+        "week_hr_cnt": 56
+      },
+      "serialisation": {
+        "layout": "indented",
+        "shift_attrs": "start-first",
+        "pad_hours": true,
+        "view_node": true,
+        "has_0x7f": true
+      },
+      "week": [
+        {
+          "day": 1,
+          "name": "Sunday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 2,
+          "name": "Monday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 3,
+          "name": "Tuesday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 4,
+          "name": "Wednesday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 5,
+          "name": "Thursday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 6,
+          "name": "Friday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        },
+        {
+          "day": 7,
+          "name": "Saturday",
+          "works": true,
+          "shifts": [
+            "08:00-16:00"
+          ],
+          "hours": 8
+        }
+      ],
+      "hours_per_working_day": 8,
+      "working_days_per_week": 7,
+      "hours_per_week": 56,
+      "exceptions": [],
+      "same_meaning_as": null
+    }
+  ],
+  "assertions": {
+    "data_date": "2026-11-13 11:00",
+    "project_row_count": 1,
+    "distinct_task_proj_id": 1,
+    "activity_count": 150,
+    "status_mix": {
+      "TK_Complete": 81,
+      "TK_Active": 5,
+      "TK_NotStart": 64
+    },
+    "activity_type_mix": {
+      "TT_Task": 144,
+      "TT_FinMile": 6
+    },
+    "relationship_type_mix": {
+      "PR_FS": 232,
+      "PR_SS": 18,
+      "PR_FF": 3,
+      "PR_SF": 2
+    },
+    "constraint_mix": {
+      "(empty)": 142,
+      "CS_MEO": 6,
+      "CS_MSO": 1,
+      "CS_MEOB": 1
+    },
+    "float_hr": {
+      "negative": 6,
+      "zero": 0,
+      "null": 81
+    },
+    "wbs": {
+      "node_count": 14,
+      "max_depth": 3
+    },
+    "calendar_count": 2,
+    "calendars_in_use": 2,
+    "duration_working_days": {
+      "days": 561,
+      "calendar": {
+        "clndr_id": 6600,
+        "name": "5 Day Working Week",
+        "working_days_per_week": 5
+      },
+      "activity_share_pct": 50
+    },
+    "resource_count": 8,
+    "resource_assignment_count": 404,
+    "activity_code_assignment_count": 900,
+    "external_relationship_count": 0,
+    "driving_path_flag_count": 6
+  },
+  "driving_path": {
+    "definition": "remaining work as of the data date, walked back from the latest remaining finish; driving predecessors are those that set the successor's constraining date, ties all kept (014 decisions 3 and 4, as amended by 028)",
+    "computed_from": "the generator's own logic network, not total float",
+    "longest_path_run": true,
+    "state": "ok",
+    "seeds": [
+      "A002440"
+    ],
+    "member_count": 6,
+    "members": [
+      "A001700",
+      "A001790",
+      "A002200",
+      "A002260",
+      "A002350",
+      "A002440"
+    ],
+    "branch_count": 0,
+    "branches": [],
+    "truncated": false,
+    "cycle_count": 0,
+    "cycles": [],
+    "path_continuous": true,
+    "open_chain_tails": [
+      "A001700"
+    ],
+    "flagged": [
+      "A001700",
+      "A001790",
+      "A002200",
+      "A002260",
+      "A002350",
+      "A002440"
+    ],
+    "external_predecessors": [],
+    "float_based_tracer": {
+      "note": "total_float_hr_cnt <= 0 is not the Longest Path (xer-format.md, 014 decision 4)",
+      "count": 6,
+      "marks_in_error": [],
+      "misses": []
+    },
+    "as_read_from_the_file": {
+      "note": "per relationship type on the emitted timestamps — FS pred.early_end_date + lag vs succ.early_start_date, SS pred.early_start_date + lag vs succ.early_start_date, FF pred.early_end_date + lag vs succ.early_end_date, SF pred.early_start_date + lag vs succ.early_end_date; argmax of demand - reference, ties all kept, plus the same-kind zero-lag floor (014 decision 4 as amended by 028). Lag is elapsed hours; relationships absent from the file are absent from the walk; predecessors outside the file are unresolvable and make the chain truncated",
+      "differs": false,
+      "state": "ok",
+      "seeds": [
+        "A002440"
+      ],
+      "member_count": 6,
+      "members": [
+        "A001700",
+        "A001790",
+        "A002200",
+        "A002260",
+        "A002350",
+        "A002440"
+      ],
+      "branch_count": 0,
+      "branches": [],
+      "truncated": false,
+      "cycle_count": 0,
+      "cycles": [],
+      "path_continuous": true,
+      "open_chain_tails": [
+        "A001700"
+      ],
+      "marks_in_error": [],
+      "misses": [],
+      "why": [],
+      "seed_agreement": {
+        "note": "the truth seeds on the latest remaining finish measured in working hours; this walk seeds on the latest finish instant among the emitted timestamps. Every row writes its finish at the end of the working hour it occupies, zero-duration or not (049), so the two orderings coincide and these sets agree — including where the seed set TIES between a finish milestone and the task it finishes with, which is the shape 044 measured on 47 of 47 real ties",
+        "agree": true,
+        "truth": [
+          "A002440"
+        ],
+        "as_read": [
+          "A002440"
+        ],
+        "only_in_truth": [],
+        "only_in_read": []
+      },
+      "recall_pct": 100,
+      "precision_pct": 100
+    }
+  },
+  "ingest": {
+    "accept": true,
+    "reason": "no ingest rule under test"
+  }
+}
