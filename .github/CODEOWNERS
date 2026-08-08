@@ -1,0 +1,9 @@
+# Every path in this repository is owned by the maintainer.
+#
+# Combined with the `main` branch protection rule — which requires a pull
+# request, one approving review, and that the review come from a code owner —
+# this makes @Rakart the only account whose approval can satisfy a merge.
+# An outside contributor can open a pull request and can review it, but their
+# approval does not count toward the requirement.
+
+* @Rakart
