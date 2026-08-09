@@ -10,7 +10,7 @@
 import { drizzle } from 'drizzle-orm/neon-http'
 import { PgDialect } from 'drizzle-orm/pg-core'
 import { describe, expect, it } from 'vitest'
-import { LEADERBOARD_LIMIT, SHELF_PAGE_SIZE } from '@/lib/contracts/domain'
+import { LEADERBOARD_LIMIT, SHELF_PAGE_SIZE, SIZE_BANDS } from '@/lib/contracts/domain'
 import * as queries from './queries'
 import * as schema from './schema'
 
@@ -160,7 +160,13 @@ describe('the facet counts', () => {
   it('derives the size bands from SIZE_BANDS rather than restating the edges', () => {
     const { sql, params } = facets()
     expect(flat(sql)).toContain("then 's' when")
-    expect(params).toEqual(expect.arrayContaining([499, 1999, 5000]))
+    // The edges are inlined, not bound. They have to be: the expression is rendered twice in
+    // one statement and Postgres matches the `group by` copy to the select copy structurally,
+    // which two differently-numbered parameters defeat. Asserted in full below.
+    for (const band of SIZE_BANDS.filter((b) => Number.isFinite(b.max))) {
+      expect(flat(sql)).toContain(`<= ${band.max}`)
+    }
+    expect(params).not.toEqual(expect.arrayContaining([499, 1999, 5000]))
   })
 
   it('is a separate query, so the grid keeps its one-query rule', () => {
@@ -256,5 +262,29 @@ describe('the contributor page and the leaderboard', () => {
 describe('the sector chips', () => {
   it('reads the lookup table in sort_order, not alphabetically', () => {
     expect(queries.listSectors(db).toSQL().sql).toContain('order by "sector"."sort_order" asc')
+  })
+})
+
+describe('the size-band expression is rendered twice in one statement', () => {
+  /**
+   * It appears in the select list and again in `group by`, and Postgres matches the two
+   * structurally. A bound parameter breaks that match — Drizzle numbers parameters
+   * sequentially across the statement, so the two copies would carry different placeholders
+   * and Postgres would reject the statement complaining about `revision.activity_count`,
+   * which is not where the fault is. This is the regression guard for that.
+   */
+  it('carries no bound parameter, so both renderings are textually identical', () => {
+    const { sql: text } = facets()
+    const cases = text.match(/case\s+when[\s\S]*?end/g) ?? []
+    expect(cases).toHaveLength(2)
+    expect(cases[0]).toBe(cases[1])
+    expect(cases[0]).not.toContain('$')
+  })
+
+  it('takes its bounds from SIZE_BANDS rather than restating them', () => {
+    const { sql: text } = facets()
+    for (const band of SIZE_BANDS.filter((b) => Number.isFinite(b.max))) {
+      expect(text).toContain(`<= ${band.max} then '${band.code}'`)
+    }
   })
 })

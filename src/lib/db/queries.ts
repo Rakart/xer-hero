@@ -279,14 +279,26 @@ export interface ShelfFacetCounts {
 
 /**
  * The size band as a value, built from `SIZE_BANDS` so the grouping and `sizePredicate`
- * cannot disagree. The band codes are `sql.raw` because a bound parameter in a `case … then`
- * arm has no inferable type in Postgres; they come from a frozen const, never from a URL.
+ * cannot disagree.
+ *
+ * **Every literal here is `sql.raw`, and the upper bounds have to be.** The band codes are raw
+ * because a bound parameter in a `case … then` arm has no inferable type in Postgres. The
+ * *bounds* are raw for a sharper reason: this expression is rendered twice in one statement,
+ * once in the select list and once in `group by`, and Drizzle numbers bound parameters
+ * sequentially across the whole statement — so the two copies would carry `$3, $4, $5` and
+ * `$8, $9, $10`. Postgres matches a grouping expression to a select expression structurally,
+ * two different `Param` nodes are not the same node, and the statement is rejected with
+ * *"column revision.activity_count must appear in the GROUP BY clause"* — an error that names
+ * the column rather than the parameters and sends you looking in the wrong place entirely.
+ *
+ * Both come from a frozen const and never from a URL, so neither is an injection surface.
  */
 const sizeBandExpression: SQL = sql.join(
   [
     sql`case`,
     ...SIZE_BANDS.filter((b) => Number.isFinite(b.max)).map(
-      (b) => sql`when ${revision.activity_count} <= ${b.max} then ${sql.raw(`'${b.code}'`)}`,
+      (b) =>
+        sql`when ${revision.activity_count} <= ${sql.raw(String(b.max))} then ${sql.raw(`'${b.code}'`)}`,
     ),
     sql`else ${sql.raw(`'${SIZE_BANDS[SIZE_BANDS.length - 1]?.code}'`)} end`,
   ],
