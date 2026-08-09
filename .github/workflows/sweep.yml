@@ -12,12 +12,18 @@
 #
 # The secret lives in Actions secrets and in Vercel's env vars. Forked-PR builds get no
 # environment variables, so a fork cannot call this.
+#
+# TODO(production): re-enable the schedule below. It is commented out because the estate is
+# not deployed yet — every 15 minutes the run would POST to a `SITE_ORIGIN` that does not
+# answer, fail, and mail the repo owner. Uncomment the two `schedule:` lines once the site is
+# live and `SITE_ORIGIN` / `SWEEP_SECRET` are set; until then run it by hand with
+# `workflow_dispatch`.
 
 name: Sweep
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
+  # schedule:
+  #   - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
