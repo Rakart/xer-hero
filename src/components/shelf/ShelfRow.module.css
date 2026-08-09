@@ -43,9 +43,11 @@
   background: var(--surface);
 }
 
-/* The header row labels every slot and is sticky. It shares `.row`'s track list, so it
+/* The header row labels every slot and is frozen. It shares `.row`'s track list, so it
    is the same object with a different padding — a header that computed its own widths
-   would drift from the rows the first time a width changed. */
+   would drift from the rows the first time a width changed.
+   `top: 0` is the frozen-pane case, where the grid is its own scrollport and the top of
+   that box is where the labels belong. */
 .headRow.headRow {
   position: sticky;
   top: 0;
@@ -54,6 +56,16 @@
   background: var(--plane);
   border-bottom: 1px solid var(--axis);
   align-items: end;
+}
+
+/* Above 1404px the grid has no scroll box, so the labels stick against the viewport and
+   have to clear the two bands already frozen there: the site header, and the shelf's
+   filter/sort chrome. `--shelf-controls-h` falls back to zero, which is the truth on
+   `/u/{handle}`, `/me/bookmarks` and `/me/votes` — a grid with no chrome above it. */
+@media (min-width: 1404px) {
+  .headRow.headRow {
+    top: calc(var(--site-header-h, 53px) + var(--shelf-controls-h, 0px));
+  }
 }
 
 .headRow.headRow:hover {

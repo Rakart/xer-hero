@@ -8,21 +8,26 @@ import rowStyles from './ShelfRow.module.css'
  * an unlabelled `69 27 4` is three numbers with no units.
  */
 const HEADERS = [
-  'float',
-  'programme',
-  'sector',
+  'Float',
+  'Programme',
+  'Sector',
   'P6',
-  'upvotes',
-  'save',
-  'rev',
-  'activities',
-  'window & data date',
-  'complete',
+  'Upvotes',
+  'Save',
+  'Rev',
+  'Activities',
+  'Window & data date',
+  'Complete',
   'DCMA',
-  'age',
+  'Age',
 ] as const
 
-const FLOAT_SUBHEADS = ['neg', '0–44d', '>44d'] as const
+/**
+ * The three float slots read as a number line — `<0d`, `0–44d`, `>44d` — rather than one
+ * word and two ranges. `neg` named the band; `<0d` states the same thing in the units the
+ * two labels beside it are already in, so the row reads left to right without a legend.
+ */
+const FLOAT_SUBHEADS = ['<0d', '0–44d', '>44d'] as const
 
 /**
  * The shelf: a sticky header row and one row per published Programme at its current

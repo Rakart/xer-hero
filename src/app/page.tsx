@@ -5,6 +5,7 @@ import { activeFilterLabels } from '@/components/shelf/empty-state'
 import { FilterBar } from '@/components/shelf/FilterBar'
 import { HomeLede } from '@/components/shelf/HomeLede'
 import { Pager } from '@/components/shelf/Pager'
+import { ShelfChrome } from '@/components/shelf/ShelfChrome'
 import controls from '@/components/shelf/ShelfControls.module.css'
 import { ShelfGrid, SingleResultNote } from '@/components/shelf/ShelfGrid'
 import { ActiveFilters, ResultCount, SortControl } from '@/components/shelf/ShelfToolbar'
@@ -116,14 +117,19 @@ export default async function ShelfPage({
           same thing on the page, in a form you can click. */}
       {bare ? <HomeLede /> : <h1 className={controls.srOnly}>{shelfHeading(params)}</h1>}
 
-      <FilterBar params={params} counts={counts} />
+      {/* Filters, sort and the active chips freeze as one band under the site header, and
+          the grid's column labels freeze under that: the whole apparatus for reading a row
+          stays on screen for as long as there are rows to read. */}
+      <ShelfChrome>
+        <FilterBar params={params} counts={counts} />
 
-      <div className={controls.toolbar}>
-        <ResultCount total={total} page={params.page} />
-        <SortControl params={params} />
-      </div>
+        <div className={controls.toolbar}>
+          <ResultCount total={total} page={params.page} />
+          <SortControl params={params} />
+        </div>
 
-      <ActiveFilters params={params} />
+        <ActiveFilters params={params} />
+      </ShelfChrome>
 
       {rows.length === 0 && extras ? (
         <EmptyState

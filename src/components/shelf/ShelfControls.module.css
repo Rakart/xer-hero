@@ -47,6 +47,30 @@
   text-underline-offset: 2px;
 }
 
+/* --- the frozen chrome band ----------------------------------------------
+   Filter bar, result count and sort, active-filter chips: one sticky band that
+   comes to rest directly under the site header, so the state of the set you are
+   looking at is on screen wherever you are in it.
+
+   `--site-header-h` is published by `HeaderMetrics` because the header's height
+   is not a constant — the bar wraps at narrow widths and the signed-in notice
+   adds a line. The fallback is the height it settles at on a desktop viewport,
+   used for the one frame before the observer's first read.
+
+   The band is widened to the grid's own bleed — the shelf reclaims 21px each
+   side for its 1,362px row — so that rows pass *under* it rather than beside
+   it. The padding puts the children back where they were, so the filter bar's
+   two rules still start and end on the page's left and right edge. */
+
+.chrome {
+  position: sticky;
+  top: var(--site-header-h, 53px);
+  z-index: 20;
+  margin-inline: -21px;
+  padding-inline: 21px;
+  background: var(--plane);
+}
+
 /* --- the filter bar -------------------------------------------------------
    A top bar, never a left rail: a rail costs ~20% of viewport permanently and
    the columns that compress are the drawn ones. */

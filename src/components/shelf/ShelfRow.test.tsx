@@ -53,22 +53,24 @@ describe('the row renders twelve slots (§6.2)', () => {
 
   it('labels every slot in the header', () => {
     for (const label of [
-      'float',
-      'programme',
-      'sector',
+      'Float',
+      'Programme',
+      'Sector',
       'P6',
-      'upvotes',
-      'save',
-      'rev',
-      'activities',
-      'window &amp; data date',
-      'complete',
+      'Upvotes',
+      'Save',
+      'Rev',
+      'Activities',
+      'Window &amp; data date',
+      'Complete',
       'DCMA',
-      'age',
+      'Age',
     ]) {
       expect(html).toContain(label)
     }
-    // Slot 1's three fixed numeric slots are labelled too — `69 27 4` has no units without.
+    // Slot 1's three fixed numeric slots are labelled too — `69 27 4` has no units without,
+    // and all three are stated in days so the band reads as one number line.
+    expect(html).toContain('&lt;0d')
     expect(html).toContain('0–44d')
     expect(html).toContain('&gt;44d')
   })
