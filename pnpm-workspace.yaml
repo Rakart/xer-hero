@@ -1,2 +1,11 @@
+# pnpm settings. This file rather than a `pnpm` key in `package.json`, because pnpm 10 moved
+# every setting here and silently ignores the old home — which fails `pnpm install` on a clean
+# checkout with `ERR_PNPM_IGNORED_BUILDS` while an existing `node_modules` masks it entirely.
+#
+# esbuild is Vitest's bundler and needs its postinstall to fetch a platform binary; Biome ships
+# the same way. Both are dev tooling the spec already names (§10.12), so both are approved here
+# rather than by an interactive `pnpm approve-builds` nobody can run in CI. Everything not
+# listed stays blocked, which is the point of the setting.
 allowBuilds:
-  esbuild: set this to true or false
+  '@biomejs/biome': true
+  esbuild: true
