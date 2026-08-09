@@ -108,6 +108,21 @@ known to be wrong at runtime; the defects the same review found *were* fixed.
   fifteen minutes against the live blob host. The local `edge-contract` job covers the CORS and
   presign half; the CDN half has no origin to point at yet.
 
+**A spec premise that does not survive contact with MinIO.**
+
+- **§5.6's "same document applied twice" is true of R2 only.** The section argues that applying
+  `ops/bucket/cors.json` through stock `@aws-sdk/client-s3` against whatever `S3_ENDPOINT` names
+  is cheaper than *"one hand-written dashboard click-path for R2 plus one hand-written `mc`
+  incantation for MinIO"*. **MinIO does not implement `PutBucketCors`** — it answers 501
+  `NotImplemented` and takes its CORS configuration from `MINIO_API_CORS_ALLOW_ORIGIN`, which is
+  what `docker-compose.yml` sets. The document is still one artefact and still the thing the
+  operator applies to production, so the decision's *intent* holds; its mechanism does not, and
+  local CORS is configured out of band whatever the spec says. `edge-contract` skips the apply
+  where the API is absent and asserts the presign↔document join statically instead — which is
+  strictly better, because that assertion needs no bucket and so also runs in a fork PR. What is
+  lost is any local proof that the document's `AllowedHeaders` is what a real store enforces;
+  only production can show that.
+
 **Real but not urgent.**
 
 - **The minimal `derived.json` can still exceed the 150 KB ceiling.** §3.11's degraded object drops
