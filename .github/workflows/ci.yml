@@ -68,8 +68,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
+      # `pnpm stack:up`, not a bare `docker compose up --wait`: `--wait` counts the run-once
+      # bucket initialiser exiting 0 as a failure. The script is what the README tells a
+      # contributor to run, so CI and a laptop stand the stack up the same way.
       - name: Stand up Postgres, the Neon HTTP proxy and MinIO
-        run: docker compose up -d --wait
+        run: pnpm stack:up
 
       - name: Copy the committed dev defaults
         run: cp .env.example .env.local
@@ -104,6 +107,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: docker compose up -d --wait blob blob-init
+      - run: pnpm stack:blob
       - run: cp .env.example .env.local
       - run: pnpm tsx src/scripts/edge-contract.ts

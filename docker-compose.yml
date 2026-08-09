@@ -64,6 +64,12 @@ services:
 
   # Creates the bucket and makes objects anonymously readable, which is what the R2 custom
   # domain does in production. Runs once and exits.
+  #
+  # **Start it with `pnpm stack:up`, not with a bare `docker compose up --wait`.** `--wait`
+  # treats *any* container exiting as a failure, including this one exiting 0 having done its
+  # job, so a bare `up --wait` reports the stack as broken when it is fine. The scripts in
+  # `package.json` wait on the long-lived services and then run this one to completion, and
+  # they are what CI runs too, so there is one definition of standing the stack up.
   blob-init:
     image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     depends_on:

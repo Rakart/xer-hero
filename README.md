@@ -37,7 +37,7 @@ node tools/fixture-gen/measure.mjs --verify
 
 # Tier 1 — needs Docker. Every signed-out surface, against ~40 seeded programmes.
 cp .env.example .env.local
-docker compose up -d --wait          # Postgres + the Neon HTTP proxy + MinIO
+pnpm stack:up                        # Postgres + the Neon HTTP proxy + MinIO
 pnpm db:migrate
 node tools/dev-catalogue/generate.mjs   # writes the dev catalogue; not committed
 pnpm db:seed                            # runs the real ingest path, server-side
@@ -51,6 +51,11 @@ surface keeps working without them, which is the state a fresh clone starts in.
 `docker compose` is a hard prerequisite for tier 1 and **Podman is not supported**. On WSL,
 Docker Desktop's *Settings → Resources → WSL Integration* has to be enabled for the distro
 you are working in, or `docker` is simply not on the path.
+
+Use `pnpm stack:up` rather than a bare `docker compose up --wait`: `--wait` counts the
+run-once bucket initialiser exiting 0 as a failure and reports a healthy stack as broken. The
+script waits on the long-lived services and then runs the initialiser to completion, and it is
+what CI runs too. `pnpm stack:down` destroys the volumes.
 
 Seeding runs the **product** parser, the **product** derive code and the **product**
 persistence code — it skips only the browser parse and the presigned-PUT hop — so it cannot
