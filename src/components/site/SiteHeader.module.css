@@ -1,0 +1,78 @@
+.header {
+  border-bottom: 1px solid var(--hair);
+  background: var(--plane);
+}
+
+.bar {
+  max-width: var(--measure-wide);
+  margin: 0 auto;
+  padding: 16px 20px 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-decoration: none;
+}
+
+.strap {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* The cluster's two states are different widths (`Sign in` versus `Upload · {handle}`).
+   Right-aligned with a min-width so the swap moves nothing to its left (§6.13). */
+.cluster {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  min-width: 180px;
+}
+
+.cluster a {
+  text-decoration: none;
+}
+
+.cluster a:hover {
+  text-decoration: underline;
+}
+
+.dot {
+  color: var(--axis);
+}
+
+.handle {
+  font-weight: 500;
+}
+
+/* The header notice appears and pushes the page down, for the rare signed-in viewer
+   inside a 24-hour or 30-day window. Accepted rather than reserving a blank strip on
+   every page for every viewer (§6.13). */
+.notice {
+  border-bottom: 1px solid var(--hair);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.noticeInner {
+  max-width: var(--measure-wide);
+  margin: 0 auto;
+  padding: 8px 20px;
+  color: var(--ink-2);
+}
+
+.noticeInner a {
+  color: var(--series);
+}

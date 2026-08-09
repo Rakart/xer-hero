@@ -1,0 +1,290 @@
+/* The upload flow's own rhythm. It is a form, not a document, so it sets its own
+   labels, hints and errors rather than sitting inside `.prose` (§7.14). */
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 46rem;
+}
+
+/* --- the picker ---------------------------------------------------------- */
+
+.picker {
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 18px 18px 16px;
+}
+
+.pickerLabel {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.file {
+  display: block;
+  font: inherit;
+  max-width: 100%;
+}
+
+.pickerHint {
+  margin: 12px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* --- a rejection, an offer, a hint --------------------------------------- */
+
+.reject {
+  border: 1px solid var(--neg);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.rejectMessage {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rejectGuard {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.offer,
+.hint {
+  border: 1px solid var(--hair);
+  border-left: 2px solid var(--series);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.offer p,
+.hint p {
+  margin: 0 0 6px;
+}
+
+.offer p:last-child,
+.hint p:last-child {
+  margin-bottom: 0;
+}
+
+.hintTail {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* --- the scan summary ---------------------------------------------------- */
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.fact {
+  min-width: 96px;
+}
+
+.factLabel {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.factValue {
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+
+/* --- the metadata form --------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 3px 0 7px;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.input,
+.textarea,
+.select {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--axis);
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.select {
+  max-width: 20rem;
+}
+
+.error {
+  margin: 6px 0 0;
+  color: var(--neg);
+  font-size: 13px;
+}
+
+/* --- the disclosure panel (§7.8) ----------------------------------------- */
+
+.panel {
+  border: 1px solid var(--axis);
+  border-radius: 10px;
+  padding: 16px 18px;
+  background: var(--surface);
+}
+
+.panelTitle {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.panelLede {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.panelList {
+  margin: 12px 0 0;
+}
+
+.panelRow {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: 4px 16px;
+  padding: 7px 0;
+  border-top: 1px solid var(--hair);
+}
+
+.panelRow:first-child {
+  border-top: 0;
+}
+
+.panelLabel {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.panelValue {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.panelSource {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.panelSummary {
+  display: block;
+  color: var(--ink-2);
+}
+
+.panelNames {
+  margin: 4px 0 0;
+  padding-left: 1.1em;
+}
+
+.panelContact {
+  color: var(--ink-2);
+}
+
+@media (max-width: 640px) {
+  .panelRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- the one checkbox on the site (§7.2) --------------------------------- */
+
+.rights {
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+}
+
+.rightsLabel {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.submit {
+  font: inherit;
+  font-weight: 600;
+  color: var(--plane);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.status {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}

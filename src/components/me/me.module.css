@@ -1,0 +1,251 @@
+/* `/me` is four plain server-rendered pages: one tab strip of four plain links, `?page=N`
+   at 25, no facets, no search, no sort control, no client state, no tab component (§6.12). */
+
+.tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  font-size: 14px;
+}
+
+.tab {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.tabOn {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* --- the index line: title · chip · clause · rev · sector · age ----------- */
+
+.lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+.title {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.rev,
+.sector,
+.age {
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.rev {
+  font-variant-numeric: tabular-nums;
+}
+
+.clause {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chip {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 1px 7px;
+  margin-left: 8px;
+  background: var(--chip);
+  color: var(--ink-2);
+  font-size: 11px;
+  vertical-align: 1px;
+}
+
+.chipBad {
+  color: var(--neg);
+}
+
+/* --- a saved / upvoted row ----------------------------------------------- */
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+.rowMain {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-size: 15px;
+}
+
+.rowFacts {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.rowFacts span + span::before {
+  content: " · ";
+}
+
+.rowGone {
+  opacity: 0.45;
+}
+
+.toggle {
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--axis);
+  border-radius: 999px;
+  padding: 3px 11px;
+  cursor: pointer;
+  min-width: 96px;
+}
+
+.toggleOn {
+  color: var(--plane);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* --- handles, empty states, account -------------------------------------- */
+
+.handles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  padding: 26px 0 8px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.emptyAction {
+  display: inline-block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.notice {
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 46rem;
+}
+
+.notice p {
+  margin: 0 0 0.7em;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.noticeTitle {
+  font-weight: 600;
+}
+
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  max-width: 46rem;
+}
+
+.block {
+  border-top: 1px solid var(--hair);
+  padding-top: 18px;
+}
+
+.blockTitle {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.blockBody {
+  margin: 0 0 12px;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.input {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--axis);
+  border-radius: 6px;
+  padding: 8px 10px;
+  max-width: 24rem;
+  width: 100%;
+}
+
+.button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--plane);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.danger {
+  color: var(--plane);
+  background: var(--neg);
+  border-color: var(--neg);
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--neg);
+  font-size: 13px;
+}
+
+.ok {
+  margin: 8px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.pager {
+  display: flex;
+  gap: 16px;
+  padding-top: 16px;
+  font-size: 13.5px;
+}

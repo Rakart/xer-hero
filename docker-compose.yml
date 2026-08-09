@@ -1,0 +1,83 @@
+# The local development stack (§4.9). Three services, no hosted account required.
+#
+# Every substitution is an endpoint swap, not an adapter: the app talks stock S3 to MinIO
+# and the stock Neon serverless wire to a local HTTP proxy, so dev exercises the same
+# clients production does. Images are pinned by digest — the proxy because it is
+# community-maintained, the other two for the same reproducibility CI needs.
+
+name: xerhero
+
+services:
+  # Stock Postgres. `citext` and `pg_trgm` are contrib extensions, so neither is a Neon
+  # dependency — the migrations create them here exactly as they do on Neon.
+  db:
+    image: postgres:16-alpine@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: xerhero
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d xerhero']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # The local Neon HTTP proxy. NOT `neondatabase/neon_local`, which proxies to a real Neon
+  # project and needs an account and an API key. This one fronts the Postgres above and
+  # speaks the same HTTP wire `drizzle-orm/neon-http` speaks in production — which matters,
+  # because `neon-http` cannot open an interactive transaction and three closed decisions
+  # rest on that limit. Dev must not be more capable than production.
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main@sha256:cd2ae14edf2feafbc3330492de5c80506f77274c3bd013154cdef697bdeb768a
+    environment:
+      PG_CONNECTION_STRING: postgres://postgres:postgres@db:5432/xerhero
+    ports:
+      - '4444:4444'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # MinIO stands in for R2. The presigned-PUT upload path runs in full locally, CORS
+  # included, because CORS is a bucket rule in both.
+  blob:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      # The dev origin. Production's AllowedOrigins comes from ops/bucket/cors.json.
+      MINIO_API_CORS_ALLOW_ORIGIN: 'http://localhost:3000'
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - blob-data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'mc ready local || exit 1']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Creates the bucket and makes objects anonymously readable, which is what the R2 custom
+  # domain does in production. Runs once and exits.
+  blob-init:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    depends_on:
+      blob:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://blob:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing local/xerhero &&
+      mc anonymous set download local/xerhero &&
+      echo 'bucket ready'
+      "
+    restart: 'no'
+
+volumes:
+  db-data:
+  blob-data:
