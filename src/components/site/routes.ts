@@ -25,7 +25,12 @@ export const SOURCE_REPO_URL = 'https://github.com/Rakart/xer-hero'
 
 export const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
 
-/** §7.19 — printed on `/report` and named in the legal texts. Nowhere else in any markup. */
+/**
+ * §7.19 — printed on `/report`, pointed at from the legal texts. Nowhere else in any markup.
+ *
+ * A role alias, deliberately: the legal documents never quote it, so changing it is this one
+ * constant. It bounces until an email routing rule on the `xerhero.com` zone forwards it.
+ */
 export const OPERATOR_MAILBOX = 'report@xerhero.com'
 
 export const OPERATOR_NAME = 'Carlo Greblo'

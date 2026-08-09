@@ -5552,27 +5552,31 @@ _Source: [Licensing, attribution and takedown](docs/wayfinder/tickets/003-licens
 
 ### 7.19 The published mailbox
 
-**`report@xerhero.com`**, decided by the operator 2026-08-08.
+**`report@xerhero.com`**, decided by the operator 2026-08-10. It replaces the personal address
+chosen on 2026-08-08, which is no longer published anywhere in this repo.
 
-It is printed on `/report` and named in `/privacy` and `/terms` as the contact route. It appears
-**nowhere else** — not in the footer, not on `/about`, not in any page's markup — so it is not
-harvested off every page. Mail arriving there is transcribed into a `takedown_report` row by hand;
-the application still stores no address, sends no mail and holds no mail credential, so this adds
-no dependency, no secret and no cost.
+It is printed on `/report` and pointed at from `/privacy` and `/terms` as the contact route. It
+appears **nowhere else** — not in the footer, not on `/about`, not in any page's markup — so it is
+not harvested off every page. Mail arriving there is transcribed into a `takedown_report` row by
+hand; the application still stores no address, sends no mail and holds no mail credential, so this
+adds no dependency, no secret and no cost.
 
-Two consequences, stated so neither is discovered later:
+Three consequences, stated so none is discovered later:
 
-- **It is a personal address and it will be public and permanent.** It carries the operator's own
-  name, and `/privacy` and `/terms` are versioned documents whose shipped versions are immutable —
-  so an address published in v1 stays readable at `/privacy/v1` even after a later version changes
-  it. Replacing it later means a new version of both documents, which is the friction the legal
-  design deliberately built in.
-- **A `report@` alias on the domain is the cheap escape.** Once the domain is registered, an email
-  routing rule forwarding `report@` to this inbox costs nothing on the free plan and needs no
-  mailbox provider. Taking it would change one string in three documents and nothing else. Left
-  as the operator's call rather than assumed, because it is a preference about their own name.
+- **It is a role address, not a personal one.** It carries no one's name, so publishing it
+  permanently costs the operator nothing, and the person behind it can change without a document
+  changing. This is why the personal address it replaced is gone.
+- **It needs one routing rule to exist.** `report@` is an alias, not a mailbox: an email routing
+  rule on the `xerhero.com` zone forwarding it to whatever inbox the operator prefers costs nothing
+  on the free plan and needs no mailbox provider. **Until that rule exists the address bounces**,
+  which makes it the one prerequisite to publishing `/report`.
+- **Swapping it is cheap, and always was.** The legal documents never name the address — they say
+  "a mailbox" and point at `/report` — so changing it is one constant in
+  `src/components/site/routes.ts` and nothing else. The version-bump friction this section once
+  claimed does not exist: `/privacy/v1` stays valid across a change of address because it never
+  quoted one.
 
-**Overturnable**, at the price of one version bump to both legal documents.
+**Overturnable**, at the price of one constant and one routing rule.
 
 _Source: [Licensing, attribution and takedown](docs/wayfinder/tickets/003-licensing-attribution-takedown.md) · [The site's static pages](docs/wayfinder/tickets/030-static-pages.md) · operator decision, 2026-08-08_
 
@@ -7529,10 +7533,11 @@ costs a per-activity calendar lookup and changes no number on any file yet obser
 
 ### 10.11 The `/report` mailbox
 
-The one question here that needed a human, answered by the operator on 2026-08-08:
-**`report@xerhero.com`**. It costs nothing, needs no provider and adds no secret to the
-estate. Full treatment, including the `report@` alias that would replace it and what replacing it
-would cost, is §7.19.
+The one question here that needed a human, answered by the operator on 2026-08-08 and revised on
+2026-08-10: **`report@xerhero.com`**, a role alias on the estate's own zone rather than the
+personal address first chosen. It costs nothing, needs no provider and adds no secret to the
+estate, but it does need an email routing rule on the zone before it can receive anything. Full
+treatment is §7.19.
 
 ### 10.12 Lint, format, typecheck, test
 
