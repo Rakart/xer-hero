@@ -5,8 +5,9 @@ anyone can read without opening P6 — the shape of the programme, its dates, it
 honest verdict on its quality against a standard planners are already audited by. Upload is
 publish. Everything on the shelf is CC-BY 4.0.
 
-This README **is the specification**. There is no application code yet. Every decision below was
-settled before a line of it was written, and each is traceable to the ticket that settled it.
+This README **is the specification**. Every decision below was settled before a line of code was
+written, and each is traceable to the ticket that settled it. The application is now being built
+against it — see [Running it locally](#running-it-locally).
 
 ---
 
@@ -14,12 +15,51 @@ settled before a line of it was written, and each is traceable to the ticket tha
 
 | | |
 |---|---|
-| **Phase** | Spec complete. Build not started. |
+| **Phase** | Spec complete. Build in progress — see [Running it locally](#running-it-locally). |
 | **Decisions closed** | 51, over 61 tickets |
 | **Open questions** | none |
 | **Gate to starting the build** | provisioning the production estate ([the day-one runbook](#4-stack-hosting-storage-auth-and-cost), §4.10) |
 | **Code licence** | Apache-2.0 |
 | **Uploaded programmes** | CC-BY 4.0 |
+
+## Running it locally
+
+Production takes four hosted accounts; development takes one. The full contract is
+[§4.9](#49-local-development-clone-to-running-app); this is the short form.
+
+```bash
+pnpm install
+
+# Tier 0 — needs nothing but Node. Parser, calendars, tracer, derive, and the
+# golden-file corpus that is the only test data CI will ever have.
+pnpm test
+node tools/fixture-gen/measure.mjs --verify
+
+# Tier 1 — needs Docker. Every signed-out surface, against ~40 seeded programmes.
+cp .env.example .env.local
+pnpm stack:up                        # Postgres + the Neon HTTP proxy + MinIO
+pnpm db:migrate
+node tools/dev-catalogue/generate.mjs   # writes the dev catalogue; not committed
+pnpm db:seed                            # runs the real ingest path, server-side
+pnpm dev                                # http://localhost:3000
+```
+
+**Tier 2** — upload, fork, votes, bookmarks and `/me` — additionally needs a free Clerk
+account with no card. Put `pk_test_…` and `sk_test_…` in `.env.local`. Every signed-out
+surface keeps working without them, which is the state a fresh clone starts in.
+
+`docker compose` is a hard prerequisite for tier 1 and **Podman is not supported**. On WSL,
+Docker Desktop's *Settings → Resources → WSL Integration* has to be enabled for the distro
+you are working in, or `docker` is simply not on the path.
+
+Use `pnpm stack:up` rather than a bare `docker compose up --wait`: `--wait` counts the
+run-once bucket initialiser exiting 0 as a failure and reports a healthy stack as broken. The
+script waits on the long-lived services and then runs the initialiser to completion, and it is
+what CI runs too. `pnpm stack:down` destroys the volumes.
+
+Seeding runs the **product** parser, the **product** derive code and the **product**
+persistence code — it skips only the browser parse and the presigned-PUT hop — so it cannot
+work before those exist, and a fresh clone shows an empty shelf until it does.
 
 ## How this spec was made
 
@@ -68,6 +108,19 @@ there is marked *observed* with its sample size, or *engineered* with the author
 
 ```
 README.md              this spec
+src/
+  app/                 the Next.js App Router routes
+  components/          site chrome, the shelf row, the programme page's blocks
+  lib/
+    contracts/         the shared types: derived.json, activities.json, the card, the parser's output
+    xer/               the isomorphic .xer parser and the pre-upload scan
+    derive/            the compute engine: calendars, the tracer, DCMA, the payload assembly
+    db/                the Drizzle schema and the read queries
+    blob/              the S3 client, the presign and the object headers
+    ingest/            the ingest job and its failure classes
+  scripts/             migrate, seed, and the two CI assertions
+drizzle/               generated migration SQL
+ops/bucket/            the CORS document, applied to MinIO and to R2 alike
 docs/
   domain-model.md      the ubiquitous language, maintained as it firms up
   build-backlog.md     work that is real but is not spec — see below
@@ -77,10 +130,12 @@ docs/
     tickets/assets/    the measurements, prototypes and research notes behind them
 tools/
   fixture-gen/         the synthetic corpus generator and its measurement harness
+  dev-catalogue/       the ~40-programme dev catalogue generator
   scan-bench/          the client-side scan benchmark
 fixtures/
   synthetic/corpus/    the committed test corpus — CI's only test data
   generated/           perf fixtures, regenerable from a seed, never committed
+  dev-catalogue/       the dev catalogue, regenerable from a seed, never committed
 ```
 
 The real `.xer` files are outside the repo and stay there. `.gitignore` enforces it.

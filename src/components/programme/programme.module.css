@@ -1,0 +1,724 @@
+/* ---------------------------------------------------------------------------
+   The programme page: one scrolling document — a dossier (§6.7).
+
+   The palette is `globals.css`'s, unchanged, so the shelf and this page read as
+   one document. Three tokens the chrome does not define are declared on `.page`
+   rather than on `:root`, because a CSS module may not own a global: `--sunk` is
+   the recessed ground callouts and exemplar tables sit on, and `--series-700` /
+   `--series-050` are the two extra steps the status scale needs to be an ordered
+   ramp in one hue.
+--------------------------------------------------------------------------- */
+
+.page {
+  --sunk: #f2f2ee;
+  --series-700: #1c5296;
+  --neg-050: #f7dcdc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .page {
+    --sunk: #131312;
+    --series-700: #9cc6f4;
+    --neg-050: #5c1f1f;
+  }
+}
+
+:root[data-theme="dark"] .page {
+  --sunk: #131312;
+  --series-700: #9cc6f4;
+  --neg-050: #5c1f1f;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+}
+
+.pad {
+  padding: 14px 16px;
+}
+
+/* --- the identity row ----------------------------------------------------- */
+
+.identity {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.identityMain {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.identityAside {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.title {
+  font-size: 23px;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  letter-spacing: -0.015em;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.byline {
+  font-size: 13px;
+  color: var(--ink-2);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.lineage {
+  margin-top: 6px;
+  font-size: 12.5px;
+}
+
+.sep {
+  color: var(--axis);
+  padding: 0 0.25em;
+}
+
+.description {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+.warnBadge {
+  color: var(--warn);
+}
+
+/* --- sections ------------------------------------------------------------- */
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tilesRow {
+  margin-top: 4px;
+}
+
+/* --- callouts ------------------------------------------------------------- */
+
+.callout {
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--sunk);
+  border-radius: 7px;
+  padding: 8px 10px;
+  margin-top: 10px;
+  border-left: 3px solid var(--axis);
+}
+
+.callout b {
+  color: var(--ink);
+}
+
+.callout p {
+  margin: 0 0 6px;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.calloutWarn {
+  border-left-color: var(--warn);
+}
+
+.calloutList {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+/* --- the verdict sentence ------------------------------------------------- */
+
+.verdict {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 12px 0 0;
+  max-width: 78ch;
+}
+
+/* --- charts --------------------------------------------------------------- */
+
+.chartTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.chartSub {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.chartSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.axisLabel {
+  font-size: 10.5px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.bandKey {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--ink-2);
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.bandKey i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -1px;
+}
+
+.bandBar {
+  display: flex;
+  gap: 2px;
+  height: 32px;
+  margin: 12px 0 2px;
+}
+
+.bandBar > span {
+  border-radius: 3px;
+  min-width: 2px;
+}
+
+.floatTable {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 620px) {
+  .floatTable {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exactTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.exactTable td {
+  padding: 2px 0;
+}
+
+.exactRight {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
+.meter {
+  margin-bottom: 12px;
+}
+
+.meterHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.meterTrack {
+  position: relative;
+  height: 8px;
+  background: var(--series-100);
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.meterFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+}
+
+.meterMark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--ink);
+}
+
+.meterNote {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* --- DCMA ----------------------------------------------------------------- */
+
+.strip {
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: -1px;
+}
+
+.cell {
+  width: 7px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--grid);
+}
+
+.cellPass {
+  background: var(--good);
+}
+
+.cellFail {
+  background: var(--neg);
+}
+
+.cellSkip {
+  background: none;
+  border: 1px dashed var(--axis);
+}
+
+.qualityHead {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  border-bottom: 1px solid var(--hair);
+}
+
+.hero {
+  font-size: 52px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.hero small {
+  font-size: 20px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.heroLabel {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.qualityText {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.checkRow {
+  display: grid;
+  grid-template-columns: 22px 20px 1fr 110px 96px;
+  gap: 10px;
+  align-items: start;
+  padding: 9px 12px;
+  border-top: 1px solid var(--hair);
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .checkRow {
+    grid-template-columns: 22px 20px 1fr;
+  }
+}
+
+.checkSkipped {
+  opacity: 0.62;
+}
+
+.mark {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.markPass {
+  color: var(--good);
+}
+
+.markFail {
+  color: var(--neg);
+}
+
+.markSkip {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.checkNum {
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkWord {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
+.checkMeaning {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.checkValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.checkValue small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.checkThreshold {
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkBar {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 9px;
+  align-items: center;
+  margin-top: 6px;
+  max-width: 560px;
+}
+
+.checkTrack {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--chip);
+  border: 1px solid var(--hair);
+}
+
+.checkFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.checkTick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--ink);
+}
+
+.checkMargin {
+  font-size: 11px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.exemplars {
+  background: var(--sunk);
+  border-radius: 8px;
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.exemplarSummary {
+  cursor: pointer;
+  font-size: 11.5px;
+  color: var(--series);
+  margin-top: 6px;
+}
+
+.exemplarScroll {
+  max-height: 232px;
+  overflow-y: auto;
+}
+
+.exemplarTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.exemplarTable td {
+  padding: 3px 6px 3px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+.exemplarTable thead td {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.exemplarValue {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.exemplarMore {
+  margin-top: 8px;
+  color: var(--ink-2);
+}
+
+.exemplarMore a {
+  color: var(--series);
+}
+
+/* --- panels --------------------------------------------------------------- */
+
+.wbsRow {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+  padding: 5px 0;
+  border-top: 1px solid var(--hair);
+}
+
+.wbsBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--series);
+  margin-top: 4px;
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: 1fr 56px 76px;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  border-top: 1px solid var(--hair);
+  font-size: 12.5px;
+}
+
+.right {
+  text-align: right;
+}
+
+.fine {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.citation {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  background: var(--sunk);
+  border: 1px solid var(--hair);
+  border-radius: 7px;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.chain {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* --- the action cluster --------------------------------------------------- */
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.button {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 7px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 7px 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.button:hover {
+  border-color: var(--axis);
+}
+
+.buttonPrimary {
+  background: var(--ink);
+  color: var(--plane);
+  border-color: var(--ink);
+  font-weight: 500;
+}
+
+.buttonSmall {
+  padding: 4px 9px;
+  font-size: 12px;
+}
+
+.buttonInert {
+  cursor: not-allowed;
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.size {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.buttonPrimary .size {
+  color: var(--axis);
+}
+
+.vote {
+  border-radius: 999px;
+  padding: 6px 12px 6px 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.votePressed {
+  border-color: var(--series);
+  color: var(--series);
+  background: var(--series-100);
+}
+
+/* The label makes the box wider than an icon, so it is pinned: without the pin the
+   late-arriving viewer response would push `Fork` and `Download` sideways (§6.13). */
+.bookmark {
+  min-width: 96px;
+  justify-content: center;
+}
+
+.revisionRow {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.select {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--ink);
+  max-width: 260px;
+}
+
+.disclosure {
+  font-size: 11px;
+  color: var(--muted);
+  max-width: 300px;
+  text-align: right;
+  line-height: 1.45;
+}
+
+/* --- the tombstone -------------------------------------------------------- */
+
+.tombstone {
+  border-left: 3px solid var(--neg);
+  background: var(--neg-050);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.tombstoneHeading {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+.tombstoneLine {
+  font-size: 14px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}

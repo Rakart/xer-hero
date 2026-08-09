@@ -1,0 +1,32 @@
+.header {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 14px 0 26px;
+}
+
+.header p {
+  margin: 0 0 6px;
+}
+
+.header p:last-child {
+  margin-bottom: 0;
+}
+
+.versions a {
+  color: var(--series);
+  text-decoration: none;
+}
+
+.versions a:hover {
+  text-decoration: underline;
+}
+
+.superseded {
+  color: var(--ink);
+  font-weight: 600;
+}

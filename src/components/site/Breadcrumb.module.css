@@ -1,0 +1,22 @@
+.crumb {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.crumb a {
+  text-decoration: none;
+}
+
+.crumb a:hover {
+  text-decoration: underline;
+}
+
+.sep {
+  padding: 0 0.45em;
+  color: var(--axis);
+}
+
+.current {
+  color: var(--ink-2);
+}

@@ -1,0 +1,88 @@
+.form {
+  margin-top: 8px;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+
+.input,
+.textarea {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.textarea {
+  min-height: 8.5em;
+  resize: vertical;
+}
+
+.error {
+  font-size: 12.5px;
+  color: var(--neg);
+  margin: 5px 0 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.submit {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 7px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--plane);
+  padding: 8px 15px;
+}
+
+.submit[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.banner {
+  border: 1px solid var(--hair);
+  border-left: 2px solid var(--axis);
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+
+.bannerError {
+  border-left-color: var(--neg);
+}
+
+.turnstile {
+  margin-top: 18px;
+}

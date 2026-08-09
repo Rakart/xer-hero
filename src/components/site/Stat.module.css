@@ -1,0 +1,58 @@
+/* Hairline-separated tiles: one border, gap filled by the background, so the divider is
+   exactly one pixel and never doubles. */
+.grid {
+  display: grid;
+  gap: 1px;
+  background: var(--hair);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tile {
+  background: var(--surface);
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.value {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0;
+  margin-left: 0.25em;
+}
+
+.sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.hero .value {
+  font-size: 52px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.hero .unit {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}

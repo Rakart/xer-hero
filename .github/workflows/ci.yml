@@ -1,0 +1,112 @@
+# CI (§9.5). No deploy step — Vercel's Git integration owns deploys.
+#
+# Every job below must run on a **fork PR**, which gets no secrets and no environment
+# variables and can reach no hosted service. That is not a limitation to work around: an
+# all-local stack is the only stack a fork PR can ever be tested against, and it is the only
+# thing that stops the dev-only seams rotting.
+#
+# One standing constraint on everything printed here: Actions logs on a public repo are
+# world-readable, so jobs print assertions, never object URLs or response bodies.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 1. Lint, typecheck, test. Biome's formatter IS the formatter — `biome ci` fails the build
+  #    on a formatting diff, which is why there is no separate Prettier step and no
+  #    format-on-commit hook (§10.12).
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm biome ci .
+      - run: pnpm tsc --noEmit
+      - run: pnpm vitest run
+
+  # 2. The golden-file round-trip. This is the reason the corpus exists, and it is the one
+  #    component where a silent regression corrupts every row it touches. It needs no secrets
+  #    and no dependencies — `tools/fixture-gen` is dependency-free plain Node ESM on purpose,
+  #    which is what makes it usable as an independent measurement instrument against the
+  #    app's own parser.
+  corpus:
+    name: Corpus round-trip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/fixture-gen/measure.mjs --verify
+
+  # 3. The whole local stack, stood up on every PR: migrate, seed, smoke query. It catches
+  #    migration drift, seed drift, `derived.json` contract drift and a rotted proxy digest
+  #    pin together.
+  stack:
+    name: Local stack — migrate, seed, smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # `pnpm stack:up`, not a bare `docker compose up --wait`: `--wait` counts the run-once
+      # bucket initialiser exiting 0 as a failure. The script is what the README tells a
+      # contributor to run, so CI and a laptop stand the stack up the same way.
+      - name: Stand up Postgres, the Neon HTTP proxy and MinIO
+        run: pnpm stack:up
+
+      - name: Copy the committed dev defaults
+        run: cp .env.example .env.local
+
+      - run: pnpm db:migrate
+
+      - name: Generate the dev catalogue
+        run: node tools/dev-catalogue/generate.mjs
+
+      - run: pnpm db:seed
+
+      - name: Smoke query
+        run: pnpm db:smoke
+
+      - name: Stack logs on failure
+        if: failure()
+        run: docker compose logs --tail=80
+
+  # 4. The edge contract. This makes the presign's signed header set and the bucket's
+  #    `AllowedHeaders` formally **one decision**: the preflight's
+  #    `Access-Control-Request-Headers` list is derived from the presign's own output rather
+  #    than from a constant, so changing either alone is a CI failure rather than two
+  #    unrelated incidents six weeks apart.
+  edge-contract:
+    name: Edge contract — presign, PUT, preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm stack:blob
+      - run: cp .env.example .env.local
+      - run: pnpm edge:contract

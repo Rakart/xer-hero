@@ -19,3 +19,14 @@ node_modules/
 .env
 .env.local
 .DS_Store
+
+# Next.js build output and its generated types.
+.next/
+next-env.d.ts
+out/
+*.tsbuildinfo
+
+# The dev catalogue is generated from seeds, like the perf fixtures, and never committed —
+# reusing the test corpus as the demo corpus would end with someone tuning the corpus to
+# look presentable, and those 16 files exist to fail.
+fixtures/dev-catalogue/

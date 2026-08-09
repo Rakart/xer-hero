@@ -1,0 +1,53 @@
+/* ---------------------------------------------------------------------------
+   The grid's box.
+
+   The row is 1,362px at its narrowest — twelve fixed widths, eleven 12px gaps
+   and 14px of row padding each side — which is two pixels wider than
+   `--measure-wide`. The shelf reclaims those two pixels from the shell's own
+   padding rather than shaving a width the prototype fixed.
+
+   Below that the grid scrolls sideways **inside its own box**: the page never
+   scrolls horizontally, and the row never reflows. On a phone that means the
+   rows run edge to edge and the reader drags the columns they want, which is
+   the same bargain a spreadsheet makes and a much better one than a row whose
+   twelve facts land somewhere different on every line.
+--------------------------------------------------------------------------- */
+
+.scroller {
+  margin-inline: -21px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+/* Wide enough for the whole row: no scroll box, so the header row's `position:
+   sticky` resolves against the viewport and the labels follow you down the
+   page. Under this width the scroller owns the scrollport and the header stays
+   with the grid — a working shelf either way, sticky where it can be. */
+@media (min-width: 1404px) {
+  .scroller {
+    overflow: visible;
+  }
+}
+
+.grid {
+  min-width: 1362px;
+  background: var(--plane);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.single {
+  margin: 12px 0 0;
+  padding-inline: 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.single a {
+  color: var(--series);
+  text-underline-offset: 2px;
+}
