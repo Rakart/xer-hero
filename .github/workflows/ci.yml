@@ -85,7 +85,7 @@ jobs:
       - run: pnpm db:seed
 
       - name: Smoke query
-        run: pnpm tsx src/scripts/smoke.ts
+        run: pnpm db:smoke
 
       - name: Stack logs on failure
         if: failure()
@@ -109,4 +109,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm stack:blob
       - run: cp .env.example .env.local
-      - run: pnpm tsx src/scripts/edge-contract.ts
+      - run: pnpm edge:contract
