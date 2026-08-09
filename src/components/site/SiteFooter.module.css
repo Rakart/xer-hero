@@ -1,0 +1,43 @@
+.footer {
+  border-top: 1px solid var(--hair);
+  margin-top: 48px;
+}
+
+.inner {
+  max-width: var(--measure-wide);
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  font-size: 13px;
+}
+
+.links a {
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.dot {
+  color: var(--axis);
+  padding: 0 0.5em;
+}
+
+.sentence {
+  margin: 10px 0 0;
+  max-width: 62ch;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.sentence a {
+  color: inherit;
+}

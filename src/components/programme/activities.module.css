@@ -1,0 +1,301 @@
+/* ---------------------------------------------------------------------------
+   The WBS rail beside the virtualised activity table (§6.7).
+
+   The rail is a fixed 270px and node labels are the **one place on this page**
+   where a variable-length string may be cut: the real tree is 1,800 nodes with
+   450 siblings at depth 2, and a flat 450-child level cannot be navigated by
+   scrolling, so the rail opens root-expanded and everything else collapsed.
+--------------------------------------------------------------------------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+}
+
+.rail {
+  max-height: 520px;
+  overflow: auto;
+  min-width: 0;
+}
+
+.tableCard {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.placeholder {
+  padding: 22px 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.tree {
+  font-size: 12.5px;
+  padding: 6px 4px;
+}
+
+.node {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.node:hover {
+  background: var(--chip);
+}
+
+.twisty {
+  color: var(--axis);
+  font-size: 9px;
+  text-align: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.twisty:disabled {
+  cursor: default;
+}
+
+/* The one place on this page where a variable-length string may be cut. */
+.nodeLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.nodeOn {
+  background: var(--series-100);
+  color: var(--series-700, #1c5296);
+}
+
+.nodeCount {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the toolbar ---------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.search {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  min-width: 190px;
+  border: 1px solid var(--hair);
+  background: var(--plane);
+  color: var(--ink);
+}
+
+.pill {
+  font: inherit;
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  color: var(--ink-2);
+  background: none;
+  cursor: pointer;
+}
+
+.pillOn {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.count {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the table ------------------------------------------------------------ */
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: 92px minmax(180px, 1fr) 108px 78px 62px 82px 96px 96px;
+  gap: 10px;
+  padding: 0 12px;
+  align-items: center;
+}
+
+.head {
+  height: 30px;
+  background: var(--sunk, var(--plane));
+  border-bottom: 1px solid var(--hair);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.head button {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+}
+
+.head button:hover {
+  color: var(--ink);
+}
+
+.headRight button {
+  text-align: right;
+  width: 100%;
+}
+
+.viewport {
+  position: relative;
+  overflow: auto;
+  height: 460px;
+}
+
+.spacerV {
+  position: relative;
+}
+
+.window {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.row {
+  height: 28px;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--hair);
+  font-variant-numeric: tabular-nums;
+}
+
+.row:hover {
+  background: var(--chip);
+}
+
+.name {
+  font-variant-numeric: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wbs {
+  color: var(--muted);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.right {
+  text-align: right;
+}
+
+.negative {
+  color: var(--neg);
+  font-weight: 600;
+}
+
+.high {
+  color: var(--slack);
+}
+
+.empty {
+  color: var(--axis);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+.status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.dotComplete {
+  background: var(--series-700, #1c5296);
+}
+
+.dotActive {
+  background: var(--series);
+}
+
+.dotNotStarted {
+  background: var(--series-100);
+}
+
+.milestone {
+  color: var(--ink-2);
+}
+
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.emptyResult {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted);
+}

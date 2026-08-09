@@ -1,0 +1,55 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.3;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+  color: var(--ink-2);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+a.chip:hover {
+  border-color: var(--axis);
+}
+
+/* Selected — the filled state of an active facet. */
+.on {
+  background: var(--ink);
+  color: var(--plane);
+  border-color: var(--ink);
+}
+
+/* A fact, not a control: the square-cornered badge of the row and the byline. */
+.badge {
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  background: var(--chip);
+  border-color: transparent;
+}
+
+.ghost {
+  background: none;
+  color: var(--muted);
+}
+
+/* Zero-count chips are disabled, not hidden (§1.5). */
+.disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.on .count {
+  color: var(--axis);
+}

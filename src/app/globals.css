@@ -1,0 +1,280 @@
+/* ---------------------------------------------------------------------------
+   The whole site's ground: tokens, element defaults, and the reading surface.
+
+   No CSS framework and no dependency (§4.1 fixes the dependency list). Component
+   styling lives in CSS modules beside each component; what is global is the token
+   palette every module reads and the bare-element typography the legal and about
+   pages are set in.
+
+   The palette is the one the 007 and 008 prototypes were judged in, carried over
+   unchanged so the shelf, the programme page and the static pages read as one
+   document. Light is defined on bare `:root` so a viewer with no stated preference
+   gets a complete palette; dark is redefined twice — once under
+   `prefers-color-scheme` guarded against an explicit light choice, once under an
+   explicit `[data-theme="dark"]`.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --plane: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --hair: rgba(11, 11, 11, 0.1);
+  --series: #2a78d6;
+  --series-100: #cde2fb;
+  --series-250: #86b6ef;
+  --neg: #d03b3b;
+  --slack: #eda100;
+  --good: #0ca30c;
+  --warn: #fab219;
+  --chip: rgba(11, 11, 11, 0.05);
+
+  /* Measures. `wide` is the chrome and the shelf; `prose` is the reading measure
+     the legal texts and /about are set to — long-form law at 1360px is unreadable. */
+  --measure-wide: 1360px;
+  --measure-prose: 46rem;
+
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --plane: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --hair: rgba(255, 255, 255, 0.1);
+    --series: #3987e5;
+    --series-100: #184f95;
+    --series-250: #256abf;
+    --neg: #d03b3b;
+    --slack: #c98500;
+    --good: #0ca30c;
+    --warn: #fab219;
+    --chip: rgba(255, 255, 255, 0.07);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --plane: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --hair: rgba(255, 255, 255, 0.1);
+  --series: #3987e5;
+  --series-100: #184f95;
+  --series-250: #256abf;
+  --neg: #d03b3b;
+  --slack: #c98500;
+  --good: #0ca30c;
+  --warn: #fab219;
+  --chip: rgba(255, 255, 255, 0.07);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--plane);
+  color: var(--ink);
+  font: 14px / 1.45 var(--font-body);
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--series);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* The skip link is drawn off-screen and pulled back on focus — the only way a
+   keyboard visitor gets past the header on every page. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 0 0 6px 0;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/* --- the reading surface --------------------------------------------------
+   `.prose` sets a document, not a dashboard: one column, generous measure, no
+   decoration that carries no information. The legal texts, /about and /report's
+   preamble are all set in it, so they cannot drift apart. */
+
+.prose {
+  font-size: 15px;
+  line-height: 1.62;
+  color: var(--ink);
+}
+
+.prose h1 {
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 6px;
+}
+
+.prose h2 {
+  font-size: 18px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 34px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+}
+
+.prose h3 {
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 24px 0 6px;
+}
+
+.prose h4 {
+  font-size: 14px;
+  margin: 20px 0 4px;
+  color: var(--ink-2);
+}
+
+.prose p {
+  margin: 0 0 0.85em;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 0.95em;
+  padding-left: 1.35em;
+}
+
+.prose li {
+  margin-bottom: 0.4em;
+}
+
+.prose li > p {
+  margin: 0;
+}
+
+.prose a {
+  color: var(--series);
+  text-underline-offset: 2px;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--chip);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--hair);
+  margin: 28px 0;
+}
+
+/* A quoted block is how a drafting note and a LAWYER block (§7.18) render — set
+   apart from the operative text so a reader cannot mistake one for the other. */
+.prose blockquote {
+  margin: 0 0 1em;
+  padding: 10px 14px;
+  border-left: 2px solid var(--axis);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Tables can be wider than the measure; they scroll inside their own box rather
+   than making the page scroll sideways. */
+.prose .table-scroll {
+  overflow-x: auto;
+  margin: 0 0 1em;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13.5px;
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.prose thead th {
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* --- small shared utilities ---------------------------------------------- */
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--muted);
+}

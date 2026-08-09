@@ -91,6 +91,54 @@ templates get made. Each carries the constraints already fixed for it, so none s
 
 ---
 
+## D. Left open by the first build
+
+Added 2026-08-09, when the application was built against this spec in one session. Everything
+below was **found by the two-axis review and deliberately not fixed**, either because it needs the
+production estate that 026 gates, or because it is a tidy rather than a defect. Nothing here is
+known to be wrong at runtime; the defects the same review found *were* fixed.
+
+**Waiting on the production estate (026).**
+
+- **§10.5's canary is unbuilt.** The spec reserves *"a programme uuid alongside the reserved
+  revision uuid"* as committed constants so the sweep can assert the blob key without reading it
+  back from configuration. Neither uuid is minted and no `edge.canary.*` assertion exists. It
+  asserts production-only edges, so it cannot be written honestly before there is a production.
+- **No production `robots.txt` monitor.** §7.16 wants the bucket-root assertion re-run every
+  fifteen minutes against the live blob host. The local `edge-contract` job covers the CORS and
+  presign half; the CDN half has no origin to point at yet.
+
+**Real but not urgent.**
+
+- **The minimal `derived.json` can still exceed the 150 KB ceiling.** §3.11's degraded object drops
+  the exemplars, the S-curve and the codes but keeps three mixes keyed on **open** enumerations
+  (§2.4). A file with pathological enum churn would leave even the minimal object over the ceiling,
+  and the programme page reads it with a hard byte cap, so the page would throw rather than
+  degrade. Cap the mixes, or make the reader tolerate the overflow.
+- **One helper, three spellings.** A one-decimal percentage is written out as `pct` in
+  `derive/dcma.ts` and `derive/index.ts` and as `onePlace` in `derive/tracer.ts`. `MONTHS` and the
+  naive-date regex are restated across `programme/format.ts`, `shelf/shelf-format.ts` and
+  `derive/distributions.ts`, while `derive/dates.ts` already holds the canonical isomorphic
+  parser. `linePath` exists twice, in `programme/chart.ts` and `shelf/RowGraphics.tsx`, with
+  divergent rounding. The `assert` + failure-counter pair is verbatim in both CI scripts.
+- **A calendar and its exceptions travel as two parameters** through five functions in
+  `derive/dates.ts`, and the exception index is rebuilt on each call with a linear scan inside the
+  working-day walk. One pre-indexed calendar type would be faster and would stop the pair drifting
+  apart.
+- **`me-index.ts` switches on `MeState` twice**, once for the chip and once for the clause. One
+  `Record<MeState, …>` says it once.
+- **The `/api/viewer` payload carries no uploader votes**, so the vote pill on `/u/{handle}` cannot
+  render pressed for someone who has already voted. It cannot inflate the count — the key is
+  unique and the endpoint returns the authoritative number — but a returning viewer sees an
+  unpressed control. §6.13 defines the payload without them.
+- **Toolchain pins deviate from §10.2**, deliberately and visibly: `pnpm@11.10.0` rather than
+  pnpm 9, and `node >=22` rather than a pin. Both were matched to the machine the build ran on.
+  §10.2 marks itself overturnable.
+- **§6.3's empty-state copy is paraphrased** rather than quoted, and the sort control puts
+  Relevance first where §6.3 tables it last.
+
+---
+
 ## What this list is not
 
 It is not a quality ranking and not a launch checklist. The only item that gates a v1 launch is

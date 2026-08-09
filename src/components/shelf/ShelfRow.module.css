@@ -1,0 +1,287 @@
+/* ---------------------------------------------------------------------------
+   The row's geometry (§6.2).
+
+   Twelve slots in this order, at these widths, with `gap: 12px` and row padding
+   `10px 14px`. The widths are not a starting point — they came out of four
+   prototyped layouts judged against 40 programmes, and the whole argument for a
+   row list over a card is that twelve facts fit without crowding *and* the eye
+   can compare down a column. A column that moves breaks the second half of that.
+
+   Every row is its own grid rather than one grid with `subgrid`, which is
+   equivalent here because eleven of the twelve tracks are fixed pixels and the
+   twelfth is the same `1fr` on every row.
+
+   Internal rhythm, shared by every slot and by the header:
+     band     30px  the drawn thing, or the first line of text
+     caption  14px  the printed number under it
+   so the sliver, the curve, the strip and the four figures all sit on one
+   baseline and the numbers under them sit on another.
+--------------------------------------------------------------------------- */
+
+.row {
+  display: grid;
+  grid-template-columns:
+    128px /*  1 float      — 30px sliver + three fixed numeric slots */
+    minmax(150px, 1fr) /*  2 programme  — the only variable-length text on the row */
+    84px /*  3 sector     */
+    58px /*  4 P6         */
+    88px /*  5 upvotes    */
+    32px /*  6 save       */
+    40px /*  7 rev        */
+    108px /*  8 activities */
+    262px /*  9 window & data date */
+    88px /* 10 complete   */
+    112px /* 11 DCMA      */
+    52px; /* 12 age       */
+  gap: 12px;
+  padding: 10px 14px;
+  align-items: start;
+  border-bottom: 1px solid var(--hair);
+}
+
+.row:hover {
+  background: var(--surface);
+}
+
+/* The header row labels every slot and is sticky. It shares `.row`'s track list, so it
+   is the same object with a different padding — a header that computed its own widths
+   would drift from the rows the first time a width changed. */
+.headRow.headRow {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 8px 14px 6px;
+  background: var(--plane);
+  border-bottom: 1px solid var(--axis);
+  align-items: end;
+}
+
+.headRow.headRow:hover {
+  background: var(--plane);
+}
+
+.headCell {
+  font-size: 10.5px;
+  line-height: 14px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell {
+  min-width: 0;
+}
+
+.band {
+  height: 30px;
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+/* A figure in the band sits on the title's first baseline. */
+.figure {
+  font-size: 12.5px;
+  line-height: 17px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+  display: block;
+}
+
+.caption {
+  height: 14px;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.right {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.svg {
+  display: block;
+}
+
+/* --- slot 1 ---------------------------------------------------------------
+   Three fixed numeric slots, never a prose line. The colours repeat the
+   sliver's fills; the numbers, not the colours, are what make the band legible
+   — light-mode amber measures 2.11:1 against the surface. */
+
+.floatNumbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  text-align: center;
+}
+
+/* --- slot 2 --------------------------------------------------------------- */
+
+.programme {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 17px;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* The row is 48px of content; two title lines and the sub-line fill it exactly. */
+  max-height: 34px;
+}
+
+.title:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.subLine {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 11.5px;
+  line-height: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.handle {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.handle:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.forked {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dot {
+  color: var(--axis);
+}
+
+/* --- slot 3 ---------------------------------------------------------------
+   84px holds `Highways & roads` only by clipping it; the full label is in the
+   chip's title. */
+
+.clip {
+  display: block;
+  max-width: 68px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- slots 5 and 6: the two controls --------------------------------------
+   One component across two grid cells. `display: contents` keeps its children
+   as grid items of the row, so the slots stay where the table says they are. */
+
+.controls {
+  display: contents;
+}
+
+.votes {
+  min-width: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pill:hover {
+  border-color: var(--axis);
+}
+
+.pillOn {
+  background: var(--series);
+  border-color: var(--series);
+  color: #ffffff;
+}
+
+.pillCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.bookmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.bookmark:hover {
+  border-color: var(--axis);
+  color: var(--ink-2);
+}
+
+.bookmarkOn {
+  color: var(--series);
+  border-color: var(--series);
+}
+
+/* --- slot 9 ---------------------------------------------------------------
+   Three captions in fixed thirds. The data date's own x is marked in the band
+   by the rule and the marker; the caption under it does not move with it,
+   because a caption that tracks a value is a value that flows. */
+
+.windowCaption {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+.dataDate {
+  color: var(--ink-2);
+  white-space: nowrap;
+}

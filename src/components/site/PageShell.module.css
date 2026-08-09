@@ -1,0 +1,30 @@
+.shell {
+  margin: 0 auto;
+  padding: 22px 20px 64px;
+}
+
+.wide {
+  max-width: var(--measure-wide);
+}
+
+.prose {
+  max-width: var(--measure-prose);
+}
+
+.title {
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.lede {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.head {
+  margin-bottom: 18px;
+}

@@ -1,0 +1,43 @@
+# The 15-minute sweep (§5.9, §9.5).
+#
+# It is **not** a Vercel cron: Hobby allows one invocation per day with ±59 minutes of slop,
+# and a more frequent expression fails at deployment — which would make the retry path
+# decorative, since a transient failure would wait up to 24 h for its retry. Actions is free
+# on a public repo and its scheduler is best-effort, so 15 minutes is the honest cadence
+# rather than 5.
+#
+# **This is also the alert channel.** The run exits non-zero on breach and GitHub mails the
+# repo owner, free. It is the estate's only outbound mail path — the app sends no email at all,
+# which is why a `failed` row keeps its explanation for 24 h.
+#
+# The secret lives in Actions secrets and in Vercel's env vars. Forked-PR builds get no
+# environment variables, so a fork cannot call this.
+
+name: Sweep
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    name: POST /api/sweep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run the sweep and assert its verdict
+        env:
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          SWEEP_SECRET: ${{ secrets.SWEEP_SECRET }}
+        run: |
+          set -euo pipefail
+          # Print assertions, never response bodies: Actions logs on a public repo are
+          # world-readable and the sweep's payload names revisions.
+          status=$(curl -sS -o /tmp/sweep.json -w '%{http_code}' \
+            -X POST "$SITE_ORIGIN/api/sweep" \
+            -H "authorization: Bearer $SWEEP_SECRET")
+          echo "sweep responded $status"
+          test "$status" = "200"
+          ok=$(node -e 'process.stdout.write(String(require("/tmp/sweep.json").ok))')
+          echo "sweep verdict ok=$ok"
+          test "$ok" = "true"

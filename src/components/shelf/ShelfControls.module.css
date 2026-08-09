@@ -1,0 +1,336 @@
+/* ---------------------------------------------------------------------------
+   Everything above and below the grid: the lede, the filter bar, the toolbar,
+   the active-filter chips, the empty state and the pager.
+
+   All of it is quiet. The row is the loud object on this page — it is the only
+   thing here carrying twelve facts — and furniture that competes with it is
+   furniture that makes the shelf harder to scan.
+--------------------------------------------------------------------------- */
+
+/* --- the home lede (§7.13) ------------------------------------------------
+   ~95 words in three paragraphs, about two shelf rows of height above the
+   fold, on one URL, taking no horizontal space from any row. */
+
+.lede {
+  max-width: 46rem;
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.ledeHead {
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+
+.ledeHead code,
+.lede code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+.lede p {
+  margin: 0 0 0.7em;
+}
+
+.ledeLinks {
+  color: var(--muted);
+}
+
+.lede a {
+  color: var(--series);
+  text-underline-offset: 2px;
+}
+
+/* --- the filter bar -------------------------------------------------------
+   A top bar, never a left rail: a rail costs ~20% of viewport permanently and
+   the columns that compress are the drawn ones. */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  padding: 12px 0 14px;
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+}
+
+.group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.groupLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* --- the toolbar: result count and sort ---------------------------------- */
+
+.toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  padding: 12px 0;
+}
+
+.count {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.sort {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* --- active-filter chips, individually clearable ------------------------- */
+
+.active {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 0 12px;
+}
+
+.clearChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.3;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--plane);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.clearChip:hover {
+  opacity: 0.85;
+}
+
+.clearAll {
+  font-size: 12px;
+  color: var(--series);
+  align-self: center;
+  text-underline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- the empty state ----------------------------------------------------- */
+
+.empty {
+  max-width: 46rem;
+  padding: 40px 14px 48px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.emptyHead {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.emptyBody {
+  margin: 0 0 8px;
+  color: var(--ink-2);
+}
+
+.emptyBody a,
+.emptyFallback a {
+  color: var(--series);
+  text-underline-offset: 2px;
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 16px 0 0;
+  color: var(--ink-2);
+}
+
+.emptyPrimary {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--plane);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.emptyPrimary:hover {
+  opacity: 0.85;
+}
+
+.emptyFallback {
+  font-size: 13px;
+}
+
+/* --- the contributor page ------------------------------------------------
+   The Handle, one pill, a rank line and four plain facts. No badges of any
+   kind — a badge is a guarantee wearing a different word, and the site
+   guarantees nothing. */
+
+.contributorHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 6px;
+}
+
+.handleName {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.rankLine {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.rankLine a {
+  color: var(--series);
+  text-underline-offset: 2px;
+}
+
+.bigPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bigPill:hover {
+  border-color: var(--axis);
+}
+
+.bigPillOn {
+  background: var(--series);
+  border-color: var(--series);
+  color: #ffffff;
+}
+
+.pillCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.ownerLink {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--series);
+  text-underline-offset: 2px;
+}
+
+.sectionRule {
+  margin: 26px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+}
+
+/* --- the pager ----------------------------------------------------------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 22px 14px 0;
+  font-size: 13px;
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pageLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.pageLink:hover {
+  border-color: var(--axis);
+}
+
+.pageOn {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--plane);
+}
+
+.pageOff {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.gap {
+  color: var(--muted);
+  padding: 0 2px;
+}
