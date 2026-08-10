@@ -13,19 +13,27 @@
    twelve facts land somewhere different on every line.
 --------------------------------------------------------------------------- */
 
+/* Under 1404px the grid is a scroll box on both axes — a frozen pane. It has to
+   be: an element that scrolls sideways is a scroll container, and a `position:
+   sticky` header inside one resolves against *it*, not the viewport, so column
+   labels can only stay put if the rows they label scroll inside the same box.
+   The box is a viewport tall less the two bands frozen above it, and no shorter
+   than 320px on a short window. Vertical overscroll deliberately chains to the
+   page, so a reader who reaches the last row keeps going to the pager. */
 .scroller {
   margin-inline: -21px;
-  overflow-x: auto;
+  overflow: auto;
   overscroll-behavior-x: contain;
+  max-height: max(320px, calc(100dvh - var(--site-header-h, 53px) - var(--shelf-controls-h, 0px)));
 }
 
-/* Wide enough for the whole row: no scroll box, so the header row's `position:
-   sticky` resolves against the viewport and the labels follow you down the
-   page. Under this width the scroller owns the scrollport and the header stays
-   with the grid — a working shelf either way, sticky where it can be. */
+/* Wide enough for the whole row: no scroll box at all, so the header row's
+   `position: sticky` resolves against the viewport, the page keeps its single
+   scrollbar, and the labels come to rest under the chrome band instead. */
 @media (min-width: 1404px) {
   .scroller {
     overflow: visible;
+    max-height: none;
   }
 }
 

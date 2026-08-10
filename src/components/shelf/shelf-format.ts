@@ -120,7 +120,7 @@ export function formatAge(uploadedAt: Date | string | null | undefined, now = ne
  * dropped for density**. Colour is never the only channel anywhere on this row.
  */
 export const FLOAT_BANDS = [
-  { key: 'neg', label: 'neg', fill: 'var(--neg)' },
+  { key: 'neg', label: '<0d', fill: 'var(--neg)' },
   { key: 'ok', label: '0–44d', fill: 'var(--series)' },
   { key: 'high', label: '>44d', fill: 'var(--slack)' },
 ] as const
