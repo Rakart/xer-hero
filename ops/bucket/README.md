@@ -5,9 +5,17 @@
 document applied twice** is what makes local CORS and production CORS the same artefact
 rather than two things that resemble each other (§5.6).
 
-`<site-origin>` is a literal placeholder until provisioning step 12 fills it with
-`https://xerhero.com`. Local development never needs it filled: `http://localhost:3000` is
-already in the list.
+**`<site-origin>` stays a placeholder and is resolved from `SITE_ORIGIN` at apply time**, by
+`src/lib/blob/bucket-document.ts`. The runbook's step 12 says to edit this file in place with
+`https://xerhero.com`; that instruction predates the resolution existing in code, and following
+it would do two bad things — put a hostname literal into a repo artefact, which §4.8 forbids
+everywhere else, and drop whatever origin the operator actually develops against (the committed
+`http://localhost:3000` is a default, not everyone's port). Production R2 gets
+`https://xerhero.com` because that is what `SITE_ORIGIN` says in `.env.ops` and in Vercel.
+
+The document is parsed in exactly one place for the same reason: `ops bucket apply`,
+`ops bucket check` and the edge contract are three readers of **one** decision, and the join the
+edge contract exists to make would be worthless if it were a join between two copies.
 
 Three lines exist for reasons that are not obvious:
 

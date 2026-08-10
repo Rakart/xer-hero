@@ -30,3 +30,10 @@ out/
 # reusing the test corpus as the demo corpus would end with someone tuning the corpus to
 # look presentable, and those 16 files exist to fail.
 fixtures/dev-catalogue/
+.vercel
+
+# Every other `.env` shape — `.env.ops` (the operator's production tokens),
+# `.env.production.local`, whatever `vercel env pull` writes next. `.env.example` is the one
+# that is committed, and it is negated here because the Vercel CLI appended the glob above it.
+.env*
+!.env.example

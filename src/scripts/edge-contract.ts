@@ -21,9 +21,8 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import { HeadObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3'
+import { corsRules } from '@/lib/blob/bucket-document'
 import { bucket, s3 } from '@/lib/blob/client'
 import { gzip } from '@/lib/blob/gzip'
 import { presignOriginalPut } from '@/lib/blob/objects'
@@ -45,14 +44,6 @@ function matches(allowed: string, header: string): boolean {
   return allowed.endsWith('*') && header.startsWith(allowed.slice(0, -1))
 }
 
-interface CorsRule {
-  AllowedOrigins: string[]
-  AllowedMethods: string[]
-  AllowedHeaders: string[]
-  ExposeHeaders?: string[]
-  MaxAgeSeconds?: number
-}
-
 async function main() {
   console.log('Edge contract — presign, PUT, HEAD, preflight')
 
@@ -65,15 +56,11 @@ async function main() {
   //    which `docker-compose.yml` sets. That is a real gap in the spec's reasoning, recorded
   //    in the build backlog rather than papered over. The apply is therefore skipped where
   //    the API is absent, and the assertion that actually matters is made statically below.
-  const raw: CorsRule[] = JSON.parse(
-    readFileSync(join(process.cwd(), 'ops/bucket/cors.json'), 'utf8'),
-  )
-  const rules = raw.map((rule) => ({
-    ...rule,
-    AllowedOrigins: rule.AllowedOrigins.map((o) =>
-      o === '<site-origin>' ? env.siteOrigin : o,
-    ).filter((o) => !o.includes('<')),
-  }))
+  //
+  //    The parse and the placeholder resolution live in `@/lib/blob/bucket-document` because
+  //    `ops bucket apply` reads the same document — three readers, one parse, so the join
+  //    asserted below is a join against one decision rather than against a copy of it.
+  const rules = corsRules(env.siteOrigin)
   try {
     await s3().send(
       new PutBucketCorsCommand({
