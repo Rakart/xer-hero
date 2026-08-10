@@ -23,6 +23,7 @@
     "db:seed": "node --env-file-if-exists=.env.local --env-file-if-exists=.env --import tsx src/scripts/seed.ts",
     "db:smoke": "node --env-file-if-exists=.env.local --env-file-if-exists=.env --import tsx src/scripts/smoke.ts",
     "edge:contract": "node --env-file-if-exists=.env.local --env-file-if-exists=.env --import tsx src/scripts/edge-contract.ts",
+    "ops:bucket": "node --env-file-if-exists=.env.local --env-file-if-exists=.env --env-file-if-exists=.env.ops --import tsx src/scripts/ops-bucket.ts",
     "stack:up": "docker compose up -d --wait db neon-proxy blob && pnpm stack:bucket",
     "stack:blob": "docker compose up -d --wait blob && pnpm stack:bucket",
     "stack:bucket": "docker compose run --rm --no-deps blob-init",
