@@ -1,6 +1,6 @@
 # xer-hero
 
-**A public shelf of Primavera P6 programmes.** Planners upload a `.xer`, and it becomes a page
+**A public shelf for Primavera P6 programmes.** Planners upload a `.xer`, and it becomes a page
 anyone can read without opening P6 — the shape of the programme, its dates, its logic, and an
 honest verdict on its quality against a standard planners are already audited by. Upload is
 publish. Everything on the shelf is CC-BY 4.0.
